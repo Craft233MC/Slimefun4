@@ -83,7 +83,7 @@ public class HologramsService {
      * purge-task.
      */
     public void start() {
-        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, this::purge, PURGE_RATE, PURGE_RATE);
+        Slimefun.getFoliaLib().getScheduler().runTimer( this::purge, PURGE_RATE, PURGE_RATE);
     }
 
     /**

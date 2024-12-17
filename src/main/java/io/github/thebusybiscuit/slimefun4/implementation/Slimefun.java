@@ -3,6 +3,8 @@ package io.github.thebusybiscuit.slimefun4.implementation;
 import city.norain.slimefun4.SlimefunExtended;
 import city.norain.slimefun4.timings.SQLProfiler;
 import city.norain.slimefun4.utils.LangUtil;
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import com.xzavier0722.mc.plugin.slimefun4.chat.PlayerChatCatcher;
 import com.xzavier0722.mc.plugin.slimefun4.storage.migrator.BlockStorageMigrator;
 import com.xzavier0722.mc.plugin.slimefun4.storage.migrator.PlayerProfileMigrator;
@@ -214,6 +216,8 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
     private final BackpackListener backpackListener = new BackpackListener();
     private final SlimefunBowListener bowListener = new SlimefunBowListener();
 
+    private static FoliaLib foliaLib;
+
     /**
      * Our default constructor for {@link Slimefun}.
      */
@@ -246,6 +250,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
      */
     @Override
     public void onEnable() {
+        foliaLib = new FoliaLib(this);
         setInstance(this);
 
         if (isUnitTest()) {
@@ -435,7 +440,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
 
         if (cfgManager.isAutoUpdate()) {
             // 汉化版自动更新
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this, new AutoUpdateTask(this, getFile()));
+            getFoliaLib().getScheduler().runLaterAsync( new AutoUpdateTask(this, getFile()),0);
         }
 
         // Hooray!
@@ -472,7 +477,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         getSQLProfiler().stop();
 
         // Cancel all tasks from this plugin immediately
-        Bukkit.getScheduler().cancelTasks(this);
+        getFoliaLib().getScheduler().cancelAllTasks();
 
         // Finishes all started movements/removals of block data
         ticker.setPaused(true);
@@ -1122,7 +1127,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
      *
      * @return The resulting {@link BukkitTask} or null if Slimefun was disabled
      */
-    public static @Nullable BukkitTask runSync(@Nonnull Runnable runnable, long delay) {
+    public static @Nullable WrappedTask runSync(@Nonnull Runnable runnable, long delay) {
         Validate.notNull(runnable, "Cannot run null");
         Validate.isTrue(delay >= 0, "The delay cannot be negative");
 
@@ -1136,7 +1141,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
             return null;
         }
 
-        return instance.getServer().getScheduler().runTaskLater(instance, runnable, delay);
+        return Slimefun.getFoliaLib().getScheduler().runLater(runnable, delay);
     }
 
     /**
@@ -1151,7 +1156,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
      *
      * @return The resulting {@link BukkitTask} or null if Slimefun was disabled
      */
-    public static @Nullable BukkitTask runSync(@Nonnull Runnable runnable) {
+    public static @Nullable WrappedTask runSync(@Nonnull Runnable runnable) {
         Validate.notNull(runnable, "Cannot run null");
 
         // Run the task instantly within a Unit Test
@@ -1164,7 +1169,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
             return null;
         }
 
-        return instance.getServer().getScheduler().runTask(instance, runnable);
+        return Slimefun.getFoliaLib().getScheduler().runLater(runnable,0);
     }
 
     @Nonnull
@@ -1185,5 +1190,9 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
      */
     public static @Nonnull ThreadService getThreadService() {
         return instance().threadService;
+    }
+
+    public static FoliaLib getFoliaLib() {
+        return foliaLib;
     }
 }

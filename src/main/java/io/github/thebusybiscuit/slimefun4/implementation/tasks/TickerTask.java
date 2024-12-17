@@ -1,5 +1,6 @@
 package io.github.thebusybiscuit.slimefun4.implementation.tasks;
 
+import com.tcoded.folialib.impl.PlatformScheduler;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ASlimefunDataContainer;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
@@ -68,8 +69,8 @@ public class TickerTask implements Runnable {
     public void start(@Nonnull Slimefun plugin) {
         this.tickRate = Slimefun.getCfg().getInt("URID.custom-ticker-delay");
 
-        BukkitScheduler scheduler = plugin.getServer().getScheduler();
-        scheduler.runTaskTimerAsynchronously(plugin, this, 100L, tickRate);
+        PlatformScheduler scheduler = Slimefun.getFoliaLib().getScheduler();
+        scheduler.runTimerAsync( this, 100L, tickRate);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.xzavier0722.mc.plugin.slimefun4.storage.controller;
 import city.norain.slimefun4.api.menu.UniversalMenu;
 import city.norain.slimefun4.api.menu.UniversalMenuPreset;
 import city.norain.slimefun4.utils.InventoryUtil;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import com.xzavier0722.mc.plugin.slimefun4.storage.adapter.IDataSourceAdapter;
 import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
 import com.xzavier0722.mc.plugin.slimefun4.storage.common.DataScope;
@@ -86,7 +87,7 @@ public class BlockDataController extends ADataController {
     private boolean enableDelayedSaving = false;
 
     private int delayedSecond = 0;
-    private BukkitTask looperTask;
+    private WrappedTask looperTask;
     /**
      * 区块数据加载模式
      * {@link ChunkDataLoadMode}
@@ -129,9 +130,8 @@ public class BlockDataController extends ADataController {
             case LOAD_ON_STARTUP -> loadLoadedWorlds();
         }
 
-        Bukkit.getScheduler()
-                .runTaskLater(
-                        Slimefun.instance(),
+        Slimefun.getFoliaLib().getScheduler()
+                .runLater(
                         () -> {
                             initLoading = true;
                             loadUniversalRecord();
@@ -144,9 +144,8 @@ public class BlockDataController extends ADataController {
      * 加载所有服务器已加载的世界中的数据
      */
     private void loadLoadedWorlds() {
-        Bukkit.getScheduler()
-                .runTaskLater(
-                        Slimefun.instance(),
+        Slimefun.getFoliaLib().getImpl()
+                .runLater(
                         () -> {
                             initLoading = true;
                             for (var world : Bukkit.getWorlds()) {
@@ -161,9 +160,7 @@ public class BlockDataController extends ADataController {
      * 加载所有服务器已加载的世界区块中的数据
      */
     private void loadLoadedChunks() {
-        Bukkit.getScheduler()
-                .runTaskLater(
-                        Slimefun.instance(),
+        Slimefun.getFoliaLib().getImpl().runLater(
                         () -> {
                             initLoading = true;
                             for (var world : Bukkit.getWorlds()) {
@@ -190,9 +187,8 @@ public class BlockDataController extends ADataController {
         }
         enableDelayedSaving = true;
         this.delayedSecond = delayedSecond;
-        looperTask = Bukkit.getScheduler()
-                .runTaskTimerAsynchronously(
-                        p,
+        looperTask = Slimefun.getFoliaLib().getScheduler()
+                .runTimerAsync(
                         new DelayedSavingLooperTask(
                                 forceSavePeriod,
                                 () -> {

@@ -29,7 +29,7 @@ public class MigrateCommand extends SubCommand {
             if (args.length > 1 && args[1].equalsIgnoreCase("confirm")) {
                 Slimefun.getLocalization().sendMessage(sender, "commands.migrate.started", true);
 
-                Bukkit.getScheduler().runTaskAsynchronously(Slimefun.instance(), () -> {
+                Slimefun.getFoliaLib().getScheduler().runAsync(wrappedTask -> {
                     try {
                         var status = PlayerProfileMigrator.getInstance().migrateData();
                         sendMigrateStatus("玩家数据", sender, status);
@@ -39,7 +39,7 @@ public class MigrateCommand extends SubCommand {
                     }
                 });
 
-                Bukkit.getScheduler().runTaskAsynchronously(Slimefun.instance(), () -> {
+                Slimefun.getFoliaLib().getScheduler().runAsync(wrappedTask -> {
                     try {
                         var status = BlockStorageMigrator.getInstance().migrateData();
                         sendMigrateStatus("方块数据", sender, status);
