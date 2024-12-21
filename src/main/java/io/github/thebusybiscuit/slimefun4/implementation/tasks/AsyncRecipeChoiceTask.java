@@ -106,7 +106,7 @@ public class AsyncRecipeChoiceTask implements Runnable {
         // Terminate the task when noone is viewing the Inventory
         if (inventory.getViewers().isEmpty()) {
             Slimefun.getFoliaLib().getScheduler().cancelTask(Slimefun.getFoliaLib().getScheduler()
-                .runTimerAsync(this, 0, UPDATE_INTERVAL));
+                .runTimerAsync(this, 1, UPDATE_INTERVAL));
             return;
         }
 

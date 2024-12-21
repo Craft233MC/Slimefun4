@@ -90,7 +90,7 @@ public class IntegrationsManager {
         onServerLoad();
 
         // Load any integrations which aren't dependencies (loadBefore)
-       Slimefun.getFoliaLib().getScheduler().runLater(this::onServerStart,0);
+       Slimefun.getFoliaLib().getScheduler().runNextTick(wrappedTask -> this.onServerStart());
     }
 
     /**

@@ -118,6 +118,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -440,7 +441,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
 
         if (cfgManager.isAutoUpdate()) {
             // 汉化版自动更新
-            getFoliaLib().getScheduler().runLaterAsync( new AutoUpdateTask(this, getFile()),0);
+            getFoliaLib().getScheduler().runAsync(wrappedTask ->  new AutoUpdateTask(this, getFile()));
         }
 
         // Hooray!
@@ -1169,7 +1170,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
             return null;
         }
 
-        return Slimefun.getFoliaLib().getScheduler().runLater(runnable,0);
+        return Slimefun.getFoliaLib().getScheduler().runLater(runnable,1);
     }
 
     @Nonnull

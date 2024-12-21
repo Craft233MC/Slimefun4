@@ -54,7 +54,7 @@ public abstract class AbstractArmorTask implements Runnable {
                             new Object[] {getClass().getSimpleName(), tickInterval});
         }
 
-        Slimefun.getFoliaLib().getScheduler().runTimerAsync( this, 0L, tickInterval);
+        Slimefun.getFoliaLib().getScheduler().runTimerAsync( this, 1L, tickInterval);
     }
 
     /**
