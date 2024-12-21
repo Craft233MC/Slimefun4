@@ -13,6 +13,7 @@ import io.github.thebusybiscuit.slimefun4.implementation.items.blocks.BrokenSpaw
 import io.github.thebusybiscuit.slimefun4.implementation.items.blocks.RepairedSpawner;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import io.papermc.lib.PaperLib;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.bukkit.Material;
@@ -73,7 +74,9 @@ public class PickaxeOfContainment extends SimpleSlimefunItem<ToolUseHandler> {
         BlockState state = PaperLib.getBlockState(b, false).getState();
 
         if (state instanceof CreatureSpawner creatureSpawner) {
-            EntityType entityType = creatureSpawner.getSpawnedType();
+            // Fallback to pig in 1.19.3+
+            EntityType entityType =
+                    Optional.ofNullable(creatureSpawner.getSpawnedType()).orElse(EntityType.PIG);
             return spawner.getItemForEntityType(entityType);
         }
 
