@@ -1,3 +1,5 @@
+# 不可用状态
+
 # Slimefun 中文版
 
 Looking for English (or Original) Version? [**Click here**](https://github.com/Slimefun/Slimefun4/)
