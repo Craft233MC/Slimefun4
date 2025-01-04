@@ -129,6 +129,7 @@ import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.MenuListener;
 import net.guizhanss.slimefun4.updater.AutoUpdateTask;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -1181,6 +1182,22 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         }
 
         return Slimefun.getFoliaLib().getScheduler().runLater(runnable,1);
+    }
+
+    public static @Nullable WrappedTask runSyncAtLocation(@Nonnull Runnable runnable, Location loc) {
+        Validate.notNull(runnable, "Cannot run null");
+
+        // Run the task instantly within a Unit Test
+        if (getMinecraftVersion() == MinecraftVersion.UNIT_TEST) {
+            runnable.run();
+            return null;
+        }
+
+        if (instance == null || !instance.isEnabled()) {
+            return null;
+        }
+
+        return Slimefun.getFoliaLib().getScheduler().runAtLocationLater(loc,runnable,1);
     }
 
     @Nonnull
