@@ -137,7 +137,17 @@ public class BlockDataService implements Keyed {
 
         return uuid.map(data -> {
             try {
-                return UUID.fromString(data);
+                var uniId = UUID.fromString(data);
+
+                var uniData =
+                        Slimefun.getDatabaseManager().getBlockDataController().getUniversalBlockDataFromCache(uniId);
+
+                // Auto fix missing location
+                if (uniData != null && uniData.getLastPresent() == null) {
+                    uniData.setLastPresent(b.getLocation());
+                }
+
+                return uniId;
             } catch (IllegalArgumentException e) {
                 return null;
             }

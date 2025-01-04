@@ -2,7 +2,6 @@ package com.xzavier0722.mc.plugin.slimefun4.storage.util;
 
 import city.norain.slimefun4.api.menu.UniversalMenu;
 import city.norain.slimefun4.utils.TaskUtil;
-import com.google.common.base.Preconditions;
 import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ADataContainer;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ASlimefunDataContainer;
@@ -96,8 +95,10 @@ public class StorageCacheUtils {
             block.setData(key, val);
         } else {
             var uni = getUniversalBlock(loc.getBlock());
-            Preconditions.checkNotNull(uni);
-            uni.setData(key, val);
+
+            if (uni != null) {
+                uni.setData(key, val);
+            }
         }
     }
 
@@ -108,8 +109,10 @@ public class StorageCacheUtils {
             block.removeData(key);
         } else {
             var uni = getUniversalBlock(loc.getBlock());
-            Preconditions.checkNotNull(uni);
-            uni.removeData(key);
+
+            if (uni != null) {
+                uni.removeData(key);
+            }
         }
     }
 
@@ -157,25 +160,20 @@ public class StorageCacheUtils {
 
     /**
      * Get universal data from block
-     * <p>
-     * You **must** call this method from sync!
      *
      * @param block {@link Block}
      * @return {@link SlimefunUniversalBlockData}
      */
     @ParametersAreNonnullByDefault
     @Nullable public static SlimefunUniversalBlockData getUniversalBlock(Block block) {
-        return TaskUtil.runSyncMethod(() -> {
-            var uuid = Slimefun.getBlockDataService().getUniversalDataUUID(block);
-
-            return uuid.map(id -> getUniversalBlock(id, block.getLocation())).orElse(null);
-        });
+        return Slimefun.getDatabaseManager()
+                .getBlockDataController()
+                .getUniversalBlockDataFromCache(block.getLocation())
+                .orElse(null);
     }
 
     /**
      * Get universal menu from block
-     * <p>
-     * You **must** call this method from sync!
      *
      * @param block {@link Block}
      * @return {@link SlimefunUniversalData}

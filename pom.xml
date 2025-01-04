@@ -27,9 +27,9 @@
 
         <maven.settings.file>${project.basedir}/.mvn/settings.xml</maven.settings.file>
 
-        <!-- Spigot properties -->
-        <spigot.version>1.21</spigot.version>
-        <spigot.javadocs>https://hub.spigotmc.org/javadocs/spigot/</spigot.javadocs>
+        <!-- Paper properties -->
+        <paper.version>1.21</paper.version>
+        <paper.javadocs>https://papermc.io/javadocs</paper.javadocs>
     </properties>
 
     <issueManagement>
@@ -278,9 +278,9 @@
     <dependencies>
         <!-- Hard dependencies -->
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>${spigot.version}-R0.1-SNAPSHOT</version>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>${paper.version}-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -310,7 +310,7 @@
         <dependency>
             <groupId>com.github.StarWishsama.dough</groupId>
             <artifactId>dough-api</artifactId>
-            <version>30c7e77b62</version>
+            <version>4dab7610a2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

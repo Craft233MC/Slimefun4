@@ -218,39 +218,35 @@ public class BlockDataController extends ADataController {
      *
      * @param l    Slimefun 方块位置 {@link Location}
      * @param sfId Slimefun 物品 ID {@link SlimefunItem#getId()}
-     * @return 方块数据, 由于 {@link SlimefunItem} 的不同会返回两种数据中的一种
-     * {@link SlimefunBlockData}
-     * {@link SlimefunUniversalData}
+     * @return 方块数据, {@link SlimefunBlockData}
      */
     @Nonnull
-    public ASlimefunDataContainer createBlock(Location l, String sfId) {
+    public SlimefunBlockData createBlock(Location l, String sfId) {
         checkDestroy();
         var sfItem = SlimefunItem.getById(sfId);
 
         if (sfItem instanceof UniversalBlock) {
-            var re = createUniversalBlockData(l, sfId);
-            if (Slimefun.getRegistry().getTickerBlocks().contains(sfId)) {
-                Slimefun.getTickerTask().enableTicker(l, re.getUUID());
-            }
-            return re;
-        } else {
-            var re = getChunkDataCache(l.getChunk(), true).createBlockData(l, sfId);
-            if (Slimefun.getRegistry().getTickerBlocks().contains(sfId)) {
-                Slimefun.getTickerTask().enableTicker(l);
-            }
-            return re;
+            throw new IllegalArgumentException("Cannot create normal block data on UniversalBlock!");
         }
+
+        var re = getChunkDataCache(l.getChunk(), true).createBlockData(l, sfId);
+        if (Slimefun.getRegistry().getTickerBlocks().contains(sfId)) {
+            Slimefun.getTickerTask().enableTicker(l);
+        }
+        return re;
     }
 
     @Nonnull
     @ParametersAreNonnullByDefault
-    public SlimefunUniversalBlockData createUniversalBlockData(Location l, String sfId) {
+    public SlimefunUniversalBlockData createUniversalBlock(Location l, String sfId) {
         checkDestroy();
 
         var uuid = UUID.randomUUID();
         var uniData = new SlimefunUniversalBlockData(uuid, sfId, l);
 
         uniData.setIsDataLoaded(true);
+
+        uniData.initLastPresent();
 
         loadedUniversalData.put(uuid, uniData);
 
@@ -425,8 +421,9 @@ public class BlockDataController extends ADataController {
             return getBlockDataFromCache(l);
         }
 
-        var chunk = l.getChunk();
-        var chunkData = getChunkDataCache(chunk, false);
+        // var chunk = l.getChunk();
+        // fix issue #935
+        var chunkData = getChunkDataCache(l, false);
         var lKey = LocationUtils.getLocKey(l);
         if (chunkData != null) {
             var re = chunkData.getBlockCacheInternal(lKey);
@@ -443,7 +440,8 @@ public class BlockDataController extends ADataController {
         var re =
                 result.isEmpty() ? null : new SlimefunBlockData(l, result.get(0).get(FieldKey.SLIMEFUN_ID));
         if (re != null) {
-            chunkData = getChunkDataCache(chunk, true);
+            // fix issue #935
+            chunkData = getChunkDataCache(l, true);
             chunkData.addBlockCacheInternal(re, false);
             re = chunkData.getBlockCacheInternal(lKey);
         }
@@ -467,7 +465,7 @@ public class BlockDataController extends ADataController {
      * @return {@link SlimefunBlockData}
      */
     public SlimefunBlockData getBlockDataFromCache(Location l) {
-        return getBlockDataFromCache(LocationUtils.getChunkKey(l.getChunk()), LocationUtils.getLocKey(l));
+        return getBlockDataFromCache(LocationUtils.getChunkKey(l), LocationUtils.getLocKey(l));
     }
 
     /**
@@ -521,9 +519,11 @@ public class BlockDataController extends ADataController {
 
         var cache = loadedUniversalData.get(uuid);
 
-        return cache == null
-                ? getUniversalBlockData(uuid)
-                : (cache instanceof SlimefunUniversalBlockData ubd ? ubd : null);
+        if (cache instanceof SlimefunUniversalBlockData ubd) {
+            return ubd;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -536,7 +536,8 @@ public class BlockDataController extends ADataController {
 
         return loadedUniversalData.values().stream()
                 .filter(uniData -> uniData instanceof SlimefunUniversalBlockData ubd
-                        && ubd.getLastPresent().toLocation().equals(l))
+                        && ubd.getLastPresent() != null
+                        && l.equals(ubd.getLastPresent().toLocation()))
                 .map(data -> (SlimefunUniversalBlockData) data)
                 .findFirst();
     }
@@ -1267,6 +1268,17 @@ public class BlockDataController extends ADataController {
                 })
                 : loadedChunk.get(LocationUtils.getChunkKey(chunk));
     }
+    // fix issue 935: auto chunk load when using loc.getChunk(),if chunk data is already loaded into cache, we generate
+    // keyString using location,instead of loc.getChunk
+    private SlimefunChunkData getChunkDataCache(Location loc, boolean createOnNotExists) {
+        var re = loadedChunk.get(LocationUtils.getChunkKey(loc));
+        if (re != null) {
+            return re;
+        } else {
+            // jump to origin getChunkDataCache and call getChunk() to trigger chunkLoad
+            return getChunkDataCache(loc.getChunk(), createOnNotExists);
+        }
+    }
 
     private void deleteChunkAndBlockDataDirectly(String cKey) {
         var req = new RecordKey(DataScope.BLOCK_RECORD);
@@ -1303,11 +1315,16 @@ public class BlockDataController extends ADataController {
                 return;
             }
 
-            var universalData = createUniversalBlockData(l, sfId);
+            var universalData = createUniversalBlock(l, sfId);
 
             Slimefun.runSync(
-                    () -> Slimefun.getBlockDataService()
-                            .updateUniversalDataUUID(l.getBlock(), String.valueOf(universalData.getUUID())),
+                    () -> {
+                        if (Slimefun.getBlockDataService()
+                                .isTileEntity(l.getBlock().getType())) {
+                            Slimefun.getBlockDataService()
+                                    .updateUniversalDataUUID(l.getBlock(), String.valueOf(universalData.getUUID()));
+                        }
+                    },
                     10L);
 
             kvData.forEach(recordSet -> universalData.setData(

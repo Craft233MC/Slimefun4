@@ -861,7 +861,7 @@ public class ProgrammableAndroid extends SlimefunItem
         }
     }
 
-    protected void rotate(Block b, BlockFace current, int mod) {
+    protected void rotate(Block b, SlimefunUniversalBlockData uniData, BlockFace current, int mod) {
         int index = POSSIBLE_ROTATIONS.indexOf(current) + mod;
 
         if (index == POSSIBLE_ROTATIONS.size()) {
@@ -877,7 +877,8 @@ public class ProgrammableAndroid extends SlimefunItem
                 rotatable.setRotation(rotation.getOppositeFace());
             }
         }));
-        StorageCacheUtils.setData(b.getLocation(), "rotation", rotation.name());
+
+        uniData.setData("rotation", rotation.name());
     }
 
     protected void depositItems(UniversalMenu menu, Block facedBlock) {

@@ -264,6 +264,16 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
             // We want to ensure that the Server uses a compatible server software and have no
             // incompatible plugins
             getServer().getPluginManager().disablePlugin(this);
+        } else if (!PaperLib.isPaper()) {
+            getLogger().log(Level.WARNING, "#######################################################");
+            getLogger().log(Level.WARNING, "");
+            getLogger().log(Level.WARNING, "自 24/12/22 起 Slimefun 汉化版");
+            getLogger().log(Level.WARNING, "转为 Paper 插件, 你必须要使用 Paper");
+            getLogger().log(Level.WARNING, "或其分支才可使用 Slimefun.");
+            getLogger().log(Level.WARNING, "立即下载 Paper: https://papermc.io/downloads/paper");
+            getLogger().log(Level.WARNING, "");
+            getLogger().log(Level.WARNING, "#######################################################");
+            getServer().getPluginManager().disablePlugin(this);
         } else {
             // The Environment has been validated.
             onPluginStart();

@@ -26,6 +26,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -86,6 +87,24 @@ public class BackpackListener implements Listener {
             if (sfItem instanceof SlimefunBackpack) {
                 e.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerSwap(PlayerSwapHandItemsEvent e) {
+        var player = e.getPlayer();
+        if (!backpacks.containsKey(player.getUniqueId())) {
+            return;
+        }
+
+        ItemStack item = player.getInventory().getItemInOffHand();
+        if (item == null || item.getType().isAir()) {
+            return;
+        }
+
+        SlimefunItem backpack = SlimefunItem.getByItem(item);
+        if (backpack instanceof SlimefunBackpack) {
+            e.setCancelled(true);
         }
     }
 
@@ -183,18 +202,19 @@ public class BackpackListener implements Listener {
         // Check if someone else is currently viewing this backpack
         if (!backpacks.containsValue(item)) {
             SoundEffect.BACKPACK_OPEN_SOUND.playAt(p.getLocation(), SoundCategory.PLAYERS);
-
             PlayerBackpack.getAsync(
                     item,
                     backpack -> {
+                        // fix the issue #978 dupe with fast-click backpack
+                        backpack.open(p);
                         backpacks.put(p.getUniqueId(), item);
                         invSnapshot.put(
                                 backpack.getUniqueId(),
                                 InvStorageUtils.getInvSnapshot(
                                         backpack.getInventory().getContents()));
-                        backpack.open(p);
                     },
                     true);
+
         } else {
             Slimefun.getLocalization().sendMessage(p, "backpack.already-open", true);
         }

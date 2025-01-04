@@ -2,7 +2,7 @@ package io.github.thebusybiscuit.slimefun4.implementation.listeners;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
-import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalBlockData;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.attributes.UniversalBlock;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.bakedlibs.dough.protection.Interaction;
 import io.github.thebusybiscuit.slimefun4.api.MinecraftVersion;
@@ -154,17 +154,18 @@ public class BlockListener implements Listener {
                         Slimefun.getBlockDataService().setBlockData(block, sfItem.getId());
                     }
 
-                    var data = Slimefun.getDatabaseManager()
-                            .getBlockDataController()
-                            .createBlock(block.getLocation(), sfItem.getId());
+                    if (sfItem instanceof UniversalBlock) {
+                        var data = Slimefun.getDatabaseManager()
+                                .getBlockDataController()
+                                .createUniversalBlock(block.getLocation(), sfItem.getId());
 
-                    if (data instanceof SlimefunUniversalBlockData) {
                         if (Slimefun.getBlockDataService().isTileEntity(block.getType())) {
                             Slimefun.getBlockDataService().updateUniversalDataUUID(block, data.getKey());
-                        } else {
-                            throw new IllegalStateException(
-                                    "You must use pdc support material for this Slimefun item!");
                         }
+                    } else {
+                        Slimefun.getDatabaseManager()
+                                .getBlockDataController()
+                                .createBlock(block.getLocation(), sfItem.getId());
                     }
 
                     sfItem.callItemHandler(BlockPlaceHandler.class, handler -> handler.onPlayerPlace(e));

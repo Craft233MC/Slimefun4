@@ -2,8 +2,6 @@ package com.xzavier0722.mc.plugin.slimefun4.storage.migrator;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
-import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
 import io.github.bakedlibs.dough.config.Config;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
@@ -147,13 +145,7 @@ public class BlockStorageMigrator implements IMigrator {
                 sfData.setData(key, each.getValue());
             }
 
-            DirtyChestMenu menu = null;
-
-            if (sfData instanceof SlimefunBlockData blockData) {
-                menu = blockData.getBlockMenu();
-            } else if (sfData instanceof SlimefunUniversalData uniData) {
-                menu = uniData.getMenu();
-            }
+            DirtyChestMenu menu = sfData.getBlockMenu();
 
             if (menu != null) {
                 var f = new File(invFolder, world.getName() + ";" + x + ";" + y + ";" + z + ".sfi");

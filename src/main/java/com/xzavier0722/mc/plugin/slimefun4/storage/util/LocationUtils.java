@@ -7,12 +7,30 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 public class LocationUtils {
+    /**
+     * 将 {@link Location} 转换为数据库中使用的
+     * 标准格式位置信息
+     *
+     * @param l {@link Location}
+     * @return 标准化后的位置信息字符串
+     */
     public static String getLocKey(Location l) {
         return l.getWorld().getName() + ";" + l.getBlockX() + ":" + l.getBlockY() + ":" + l.getBlockZ();
     }
 
+    /**
+     * 将 {@link Chunk} 转换为数据库中使用的
+     * 标准格式区块信息
+     *
+     * @param chunk {@link Chunk}
+     * @return 标准化后的区块信息字符串
+     */
     public static String getChunkKey(Chunk chunk) {
         return chunk.getWorld().getName() + ";" + chunk.getX() + ":" + chunk.getZ();
+    }
+
+    public static String getChunkKey(Location loc) {
+        return loc.getWorld().getName() + ";" + (loc.getBlockX() >> 4) + ":" + (loc.getBlockZ() >> 4);
     }
 
     public static Location toLocation(String lKey) {
@@ -20,13 +38,17 @@ public class LocationUtils {
             return null;
         }
 
-        var strArr = lKey.split(";");
-        var loc = strArr[1].split(":");
-        return new Location(
-                Bukkit.getWorld(strArr[0]),
-                Double.parseDouble(loc[0]),
-                Double.parseDouble(loc[1]),
-                Double.parseDouble(loc[2]));
+        try {
+            var strArr = lKey.split(";");
+            var loc = strArr[1].split(":");
+            return new Location(
+                    Bukkit.getWorld(strArr[0]),
+                    Double.parseDouble(loc[0]),
+                    Double.parseDouble(loc[1]),
+                    Double.parseDouble(loc[2]));
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to parse location [" + lKey + "]", e);
+        }
     }
 
     public static boolean isSameChunk(Chunk c1, Chunk c2) {
@@ -55,9 +77,17 @@ public class LocationUtils {
         return w1.getName().equals(w2.getName());
     }
 
+    /**
+     * 将位置转换为易读的文本
+     *
+     * 注意: 请不要将其用于数据库转换过程中!
+     *
+     * @param location 位置
+     * @return 易读的位置文本
+     */
     public static String locationToString(Location location) {
         if (location == null) {
-            return "";
+            return "null";
         }
 
         return "[world="

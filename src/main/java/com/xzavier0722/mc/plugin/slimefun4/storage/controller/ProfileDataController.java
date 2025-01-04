@@ -349,7 +349,7 @@ public class ProfileDataController extends ADataController {
                     return;
                 }
 
-                if (Bukkit.getOfflinePlayer(UUID.fromString(pUuid)).isOnline()) {
+                if (Bukkit.getOfflinePlayer(UUID.fromString(pUuid)).isConnected()) {
                     return;
                 }
 
