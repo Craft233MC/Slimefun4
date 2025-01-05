@@ -1,35 +1,17 @@
 # Slimefun4 on Folia
 尝试让Slimefun4在Folia上运行,目前WIP  
 
-**不要投入到生产环境中使用！**
+**不要投入到生产环境中使用！**  
 
-**需要使用Craft233仓库内的dough进行编译，以解决聊天事件问题**
+**不要将问题提交到汉化版仓库，这不是汉化版官方版本**  
 
 # Slimefun 中文版
 
 Looking for English (or Original) Version? [**Click here**](https://github.com/Slimefun/Slimefun4/)
 
-想要直接下载吗? [**单击此处**](https://github.com/SlimefunGuguProject/Slimefun4/blob/master/README.md#floppy_disk-下载-slimefun4)
-
-欢迎加入 QQ 交流群：807302496
-
 下载 [SlimeGlue(粘液胶)](https://github.com/Xzavier0722/SlimeGlue/) 以保证 Slimefun 与其他保护插件的兼容性
 
-### 订阅计划
-
-⚡ 汉化不易, 欢迎支持[爱发电](https://afdian.net/a/nora1ncity)
-
-加入爱发电订阅计划可抢先获得最新版本的 Slimefun 构建，以及是优先技术支持。
-注意：**非年度计划用户**可在距上次公开仓库更新后 15 天获取自动同步的源代码，并非闭源。我们十分遵循 GPLv3 协议 :)
-
-了解订阅计划：[订阅计划](https://builds.guizhanss.com/sf-subscription)
-
-![目前版本](https://img.shields.io/github/v/release/SlimefunGuguProject/Slimefun4?include_prereleases)
-![构建状态](https://builds.guizhanss.com/SlimefunGuguProject/Slimefun4/master/badge.svg)
-[![Issues](https://img.shields.io/github/issues/SlimefunGuguProject/Slimefun4.svg?style=popout)](https://github.com/SlimefunGuguProject/Slimefun4/issues)
-![下载数](https://img.shields.io/github/downloads/SlimefunGuguProject/Slimefun4/total)
-
-使用汉化版之后，**禁止**在官方问题追踪器创建新问题!  
+使用此分支版本之后，**禁止**在官方或汉化版官方的问题追踪器创建新问题!  
 如果你执意要这么做, 请在反馈时使用**官方**开发版并且使用**英语**提交问题。  
 否则，请在此处创建问题或加群讨论。
 
@@ -48,39 +30,15 @@ Slimefun 让每个玩家可以自行决定在魔法或科技方面发展。
 打开[附属插件列表](https://slimefun-wiki.guizhanss.cn/Addons)，寻找你想要的附属插件！
 
 ### 导航
-
-* **[下载 Slimefun 4](#floppy_disk-下载-slimefun4)**
 * **[Discord 服务器](#discord)**
-* **[Bug 反馈](https://github.com/SlimefunGuguProject/Slimefun4/issues)**
+* **[Bug 反馈](https://github.com/Craft233MC/Slimefun4/issues)**
 * **[官方Wiki](https://github.com/Slimefun/Slimefun4/wiki)**
 * **[非官方中文 Wiki](https://slimefun-wiki.guizhanss.cn/)**
 * **[FAQ](https://slimefun-wiki.guizhanss.cn/FAQ)**
-
-## :floppy_disk: 下载 Slimefun4
-
-(可以查看: [如何安装 Slimefun](https://slimefun-wiki.guizhanss.cn/Installing-Slimefun))
-
-Slimefun 4 可以在[鬼斩构建站](https://builds.guizhanss.com)页面中**免费下载**。
-
-以下是两种版本的区别:
-
-|                      | 测试版 (最新更新)                                                                                | "稳定版"                                                                                 |
-|----------------------|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| **支持的 Minecraft 版本** | :video_game: 1.18.X - 1.20.X                                                              | :video_game: 1.16.X - 1.20.X                                                          |
-| **Java 版本**          | :computer: **Java 21+**                                                                   | :computer: **Java 17+**                                                               |
-| **自动更新系统**           | :heavy_check_mark:                                                                        | :x:                                                                                   |
-| **频繁更新**             | :heavy_check_mark:                                                                        | :x:                                                                                   |
-| **享有最新内容**           | :heavy_check_mark:                                                                        | :x:                                                                                   |
-| **Discord 支持**       | :heavy_check_mark:                                                                        | :x:                                                                                   |
-| **Bug 反馈**           | :heavy_check_mark:                                                                        | :x:                                                                                   |
-| **在发布前进行测试**         | :x:                                                                                       | :heavy_check_mark:                                                                    |
-| **有无更新日志**           | :x:                                                                                       | :memo: **[更新日志(英文)](https://github.com/Slimefun/Slimefun4/blob/master/CHANGELOG.md)** |
-| **下载链接**             | :package: **[下载 最新版](https://builds.guizhanss.com/SlimefunGuguProject/Slimefun4/master)** | :package: **[下载 "稳定版"](https://builds.guizhanss.com/SlimefunGuguProject/Slimefun4/release)** |
-
-**! 建议你使用最新的测试版，可以获得最新的内容更新和 Bug 修复！**
-
+* 
 ## :computer: 如何编译
-要编译 Slimefun4，你必须先安装 [Git](https://git-scm.com/)
+要编译 Slimefun4，你必须先安装 [Git](https://git-scm.com/)  
+**需要使用Craft233仓库内的dough进行编译，以解决聊天事件问题**  
 然后 `git clone https://github.com/SlimefunGuguProject/Slimefun4.git`
 最后如果你是 Windows 系统: `.\mvnw.cmd package`
 如果你是类 Unix 系统: `.\mvnw package`
@@ -98,14 +56,10 @@ Slimefun 4 可以在[鬼斩构建站](https://builds.guizhanss.com)页面中**�
 
 ## :headphones: 社区
 
-### 汉化版 QQ 群
+### 此仓库版本 QQ 群
 
-汉化版交流 QQ 群：807302496 (Slimefun 汉化版交流)
+汉化版交流 QQ 群：830277457 (Craft233交流)  
 附属交流 QQ 群：205679802 (Slimefun 附属交流，以及汉化组插件更新通知)
-
-### KOOK 交流频道
-
-欢迎加入 KOOK [粘液科技简中社区](https://kook.top/oqZwh8) 服务器
 
 ### 官方 Discord
 
