@@ -44,13 +44,13 @@ public class SlimefunArmorTask extends AbstractArmorTask {
             }
 
             if (item != null && armorPiece.getItem().isPresent()) {
-                Slimefun.runSync(() -> {
+                Slimefun.runSyncAtEntity(() -> {
                     SlimefunArmorPiece sfArmorPiece = armorPiece.getItem().get();
 
                     if (sfArmorPiece.canUse(p, true)) {
                         onArmorPieceTick(p, sfArmorPiece, item);
                     }
-                });
+                },p);
             }
         }
     }

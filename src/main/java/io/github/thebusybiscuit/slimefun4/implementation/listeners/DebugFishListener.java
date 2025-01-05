@@ -96,7 +96,7 @@ public class DebugFishListener implements Listener {
     private void onRightClick(Player p, Block b, BlockFace face) {
         if (p.isSneaking()) {
             // Fixes #2655 - Delaying the placement to prevent a new event from being fired
-            Slimefun.runSync(
+            Slimefun.runSyncAtLocation(
                     () -> {
                         Block block = b.getRelative(face);
                         block.setType(Material.PLAYER_HEAD);
@@ -104,7 +104,7 @@ public class DebugFishListener implements Listener {
                         PlayerHead.setSkin(block, HeadTexture.MISSING_TEXTURE.getAsSkin(), true);
                         SoundEffect.DEBUG_FISH_CLICK_SOUND.playFor(p);
                     },
-                    2L);
+                    2L, b.getLocation());
             return;
         }
 

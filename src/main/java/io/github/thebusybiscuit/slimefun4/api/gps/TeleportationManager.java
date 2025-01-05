@@ -133,7 +133,7 @@ public final class TeleportationManager {
                     index++;
                 }
 
-                Slimefun.runSync(() -> menu.open(p));
+                Slimefun.runSyncAtEntity(() -> menu.open(p),p);
             });
         }
     }
@@ -239,8 +239,8 @@ public final class TeleportationManager {
 
                 source.getWorld().spawnParticle(Particle.PORTAL, source, progress * 2, 0.2F, 0.8F, 0.2F);
                 SoundEffect.TELEPORT_UPDATE_SOUND.playFor(p);
-                Slimefun.runSync(
-                        () -> updateProgress(uuid, speed, progress + speed, source, destination, resistance), 10L);
+                Slimefun.runSyncAtEntity(
+                        () -> updateProgress(uuid, speed, progress + speed, source, destination, resistance), 10L,p);
             }
         } else {
             cancel(uuid, p);
@@ -253,7 +253,7 @@ public final class TeleportationManager {
          * This needs to run on the main Thread so we force it, as
          * the async teleportation might happen on a separate Thread.
          */
-        Slimefun.runSync(() -> {
+        Slimefun.runSyncAtEntity(() -> {
             if (success) {
                 // Apply Resistance Effect, if enabled
                 if (resistance) {
@@ -274,6 +274,6 @@ public final class TeleportationManager {
                  */
                 cancel(p.getUniqueId(), p);
             }
-        });
+        },p);
     }
 }

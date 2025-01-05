@@ -311,15 +311,9 @@ public class BlockDataController extends ADataController {
         if (removed == null) {
             getUniversalBlockDataFromCache(l)
                     .ifPresentOrElse(data -> removeUniversalBlockData(data.getUUID(), l), () -> {
-                        if (Bukkit.isPrimaryThread()) {
-                            Slimefun.getBlockDataService()
-                                    .getUniversalDataUUID(l.getBlock())
-                                    .ifPresent(uuid -> removeUniversalBlockData(uuid, l));
-                        } else {
-                            Slimefun.runSync(() -> Slimefun.getBlockDataService()
-                                    .getUniversalDataUUID(l.getBlock())
-                                    .ifPresent(uuid -> removeUniversalBlockData(uuid, l)));
-                        }
+                        Slimefun.runSyncAtLocation(() -> Slimefun.getBlockDataService()
+                            .getUniversalDataUUID(l.getBlock())
+                            .ifPresent(uuid -> removeUniversalBlockData(uuid, l)),l);
                     });
 
             return;
@@ -1317,7 +1311,7 @@ public class BlockDataController extends ADataController {
 
             var universalData = createUniversalBlock(l, sfId);
 
-            Slimefun.runSync(
+            Slimefun.runSyncAtLocation(
                     () -> {
                         if (Slimefun.getBlockDataService()
                                 .isTileEntity(l.getBlock().getType())) {
@@ -1325,7 +1319,7 @@ public class BlockDataController extends ADataController {
                                     .updateUniversalDataUUID(l.getBlock(), String.valueOf(universalData.getUUID()));
                         }
                     },
-                    10L);
+                    10L,l);
 
             kvData.forEach(recordSet -> universalData.setData(
                     recordSet.get(FieldKey.DATA_KEY), DataUtils.blockDataDebase64(recordSet.get(FieldKey.DATA_VALUE))));

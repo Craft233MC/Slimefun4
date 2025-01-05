@@ -109,7 +109,7 @@ public class ArmorTask implements Runnable {
             }
 
             if (item != null && armorpiece.getItem().isPresent()) {
-                Slimefun.runSync(() -> {
+                Slimefun.runSyncAtEntity(() -> {
                     SlimefunArmorPiece slimefunArmor = armorpiece.getItem().get();
 
                     if (slimefunArmor.canUse(p, true)) {
@@ -118,7 +118,7 @@ public class ArmorTask implements Runnable {
                             p.addPotionEffect(effect);
                         }
                     }
-                });
+                },p);
             }
         }
     }
@@ -172,14 +172,14 @@ public class ArmorTask implements Runnable {
                 // If the item is enabled in the world, then make radioactivity do its job
                 Slimefun.getLocalization().sendMessage(p, "messages.radiation");
 
-                Slimefun.runSync(() -> {
+                Slimefun.runSyncAtEntity(() -> {
                     p.addPotionEffects(radiationEffects);
 
                     // if radioactive fire is enabled, set them on fire
                     if (radioactiveFire) {
                         p.setFireTicks(400);
                     }
-                });
+                },p);
 
                 return true;
             }

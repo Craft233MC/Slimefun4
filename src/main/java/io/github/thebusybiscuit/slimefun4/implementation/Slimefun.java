@@ -133,6 +133,7 @@ import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Recipe;
@@ -1156,6 +1157,40 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         return Slimefun.getFoliaLib().getScheduler().runLater(runnable, delay);
     }
 
+    public static @Nullable WrappedTask runSyncAtEntity(@Nonnull Runnable runnable, long delay, Entity e) {
+        Validate.notNull(runnable, "Cannot run null");
+        Validate.isTrue(delay >= 0, "The delay cannot be negative");
+
+        // Run the task instantly within a Unit Test
+        if (getMinecraftVersion() == MinecraftVersion.UNIT_TEST) {
+            runnable.run();
+            return null;
+        }
+
+        if (instance == null || !instance.isEnabled()) {
+            return null;
+        }
+
+        return Slimefun.getFoliaLib().getScheduler().runAtEntityLater(e ,runnable, delay);
+    }
+
+    public static @Nullable WrappedTask runSyncAtLocation(@Nonnull Runnable runnable, long delay, Location loc) {
+        Validate.notNull(runnable, "Cannot run null");
+        Validate.isTrue(delay >= 0, "The delay cannot be negative");
+
+        // Run the task instantly within a Unit Test
+        if (getMinecraftVersion() == MinecraftVersion.UNIT_TEST) {
+            runnable.run();
+            return null;
+        }
+
+        if (instance == null || !instance.isEnabled()) {
+            return null;
+        }
+
+        return Slimefun.getFoliaLib().getScheduler().runAtLocationLater(loc,runnable, delay);
+    }
+
     /**
      * This method schedules a synchronous task for Slimefun.
      * <strong>For Slimefun only, not for addons.</strong>
@@ -1182,6 +1217,22 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         }
 
         return Slimefun.getFoliaLib().getScheduler().runLater(runnable,1);
+    }
+
+    public static @Nullable WrappedTask runSyncAtEntity(@Nonnull Runnable runnable, Entity e) {
+        Validate.notNull(runnable, "Cannot run null");
+
+        // Run the task instantly within a Unit Test
+        if (getMinecraftVersion() == MinecraftVersion.UNIT_TEST) {
+            runnable.run();
+            return null;
+        }
+
+        if (instance == null || !instance.isEnabled()) {
+            return null;
+        }
+
+        return Slimefun.getFoliaLib().getScheduler().runAtEntityLater(e,runnable,1);
     }
 
     public static @Nullable WrappedTask runSyncAtLocation(@Nonnull Runnable runnable, Location loc) {

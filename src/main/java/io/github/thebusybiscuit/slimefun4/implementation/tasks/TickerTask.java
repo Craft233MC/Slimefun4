@@ -168,12 +168,12 @@ public class TickerTask implements Runnable {
                      * We are inserting a new timestamp because synchronized actions
                      * are always ran with a 50ms delay (1 game tick)
                      */
-                    Slimefun.runSync(() -> {
+                    Slimefun.runSyncAtLocation(() -> {
                         if (blockData.isPendingRemove()) {
                             return;
                         }
                         tickBlock(l, item, blockData, System.nanoTime());
-                    });
+                    },l);
                 } else {
                     long timestamp = Slimefun.getProfiler().newEntry();
                     item.getBlockTicker().update();
@@ -206,12 +206,12 @@ public class TickerTask implements Runnable {
                      * We are inserting a new timestamp because synchronized actions
                      * are always ran with a 50ms delay (1 game tick)
                      */
-                    Slimefun.runSync(() -> {
+                    Slimefun.runSyncAtLocation(() -> {
                         if (data.isPendingRemove()) {
                             return;
                         }
                         tickBlock(l, item, data, System.nanoTime());
-                    });
+                    },l);
                 } else {
                     long timestamp = Slimefun.getProfiler().newEntry();
                     item.getBlockTicker().update();

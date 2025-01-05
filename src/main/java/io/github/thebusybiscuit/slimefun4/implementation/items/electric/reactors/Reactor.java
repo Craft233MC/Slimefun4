@@ -397,13 +397,13 @@ public abstract class Reactor extends AbstractEnergyProvider
         boolean explosion = explosionsQueue.contains(l);
 
         if (explosion) {
-            Slimefun.runSync(() -> {
+            Slimefun.runSyncAtLocation(() -> {
                 ReactorExplodeEvent event = new ReactorExplodeEvent(l, Reactor.this);
                 Bukkit.getPluginManager().callEvent(event);
 
                 data.getBlockMenu().close();
                 removeHologram(l.getBlock());
-            });
+            },l);
 
             explosionsQueue.remove(l);
             processor.endOperation(l);
@@ -413,7 +413,7 @@ public abstract class Reactor extends AbstractEnergyProvider
     }
 
     private void checkForWaterBlocks(Location l) {
-        Slimefun.runSync(() -> {
+        Slimefun.runSyncAtLocation(() -> {
             /*
              * We will pick a surrounding block at random and see if this is water.
              * If it isn't, then we will make it explode.
@@ -424,7 +424,7 @@ public abstract class Reactor extends AbstractEnergyProvider
             if (l.getBlock().getRelative(randomNeighbour).getType() != Material.WATER) {
                 explosionsQueue.add(l);
             }
-        });
+        },l);
     }
 
     private void createByproduct(

@@ -374,7 +374,7 @@ public class GPSNetwork {
                 return;
             }
 
-            Slimefun.runSync(() -> {
+            Slimefun.runSyncAtEntity(() -> {
                 WaypointCreateEvent event = new WaypointCreateEvent(p, name, l);
                 Bukkit.getPluginManager().callEvent(event);
 
@@ -400,7 +400,7 @@ public class GPSNetwork {
                     SoundEffect.GPS_NETWORK_ADD_WAYPOINT.playFor(p);
                     Slimefun.getLocalization().sendMessage(p, "gps.waypoint.added", true);
                 }
-            });
+            },p);
         });
     }
 

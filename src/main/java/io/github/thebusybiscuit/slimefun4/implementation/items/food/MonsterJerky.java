@@ -28,7 +28,7 @@ public class MonsterJerky extends SimpleSlimefunItem<ItemConsumptionHandler> {
 
     @Override
     public ItemConsumptionHandler getItemHandler() {
-        return (e, p, item) -> Slimefun.runSync(
+        return (e, p, item) -> Slimefun.runSyncAtEntity(
                 () -> {
                     if (p.hasPotionEffect(PotionEffectType.HUNGER)) {
                         p.removePotionEffect(PotionEffectType.HUNGER);
@@ -36,6 +36,6 @@ public class MonsterJerky extends SimpleSlimefunItem<ItemConsumptionHandler> {
 
                     p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 5, 0));
                 },
-                1L);
+                1L,p);
     }
 }

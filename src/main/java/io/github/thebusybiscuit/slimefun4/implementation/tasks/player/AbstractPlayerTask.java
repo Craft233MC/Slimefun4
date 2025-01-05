@@ -9,22 +9,22 @@ import org.bukkit.entity.Player;
 abstract class AbstractPlayerTask implements Runnable {
 
     protected final Player p;
-//    private int id;
+    private WrappedTask task;
 
     AbstractPlayerTask(@Nonnull Player p) {
         this.p = p;
     }
 
-//    private void setID(int id) {
-//        this.id = id;
-//    }
+    private void setCancelTask(WrappedTask task){
+        this.task = task;
+    }
 
     public void schedule(long delay) {
-        Slimefun.getFoliaLib().getScheduler().runLater(this,delay);
+        setCancelTask(Slimefun.getFoliaLib().getScheduler().runLater(this,delay));
     }
 
     public void scheduleRepeating(long delay, long interval) {
-        Slimefun.getFoliaLib().getScheduler().runTimer(this,delay,interval);
+        setCancelTask(Slimefun.getFoliaLib().getScheduler().runTimer(this,delay,interval));
     }
 
     @Override
@@ -38,7 +38,7 @@ abstract class AbstractPlayerTask implements Runnable {
      * This method cancels this {@link AbstractPlayerTask}.
      */
     public final void cancel() {
-        Slimefun.getFoliaLib().getScheduler().cancelTask((WrappedTask) this);
+        Slimefun.getFoliaLib().getScheduler().cancelTask(task);
     }
 
     /**

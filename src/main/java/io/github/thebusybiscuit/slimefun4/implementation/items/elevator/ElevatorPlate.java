@@ -236,7 +236,7 @@ public class ElevatorPlate extends SimpleSlimefunItem<BlockUseHandler> {
 
     @ParametersAreNonnullByDefault
     private void teleport(Player player, ElevatorFloor floor) {
-        Slimefun.runSync(() -> {
+        Slimefun.runSyncAtEntity(() -> {
             users.add(player.getUniqueId());
 
             float yaw = player.getEyeLocation().getYaw() + 180;
@@ -259,7 +259,7 @@ public class ElevatorPlate extends SimpleSlimefunItem<BlockUseHandler> {
                     player.sendTitle(ChatColor.WHITE + ChatColors.color(floor.getName()), null, 20, 60, 20);
                 }
             });
-        });
+        },player);
     }
 
     @ParametersAreNonnullByDefault

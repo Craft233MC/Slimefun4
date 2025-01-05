@@ -242,7 +242,7 @@ public class BlockPlacer extends SlimefunItem {
     @ParametersAreNonnullByDefault
     private void schedulePlacement(Block b, Inventory inv, ItemStack item, Runnable runnable) {
         // We need to delay this due to Dispenser-Inventory synchronization issues in Spigot.
-        Slimefun.runSync(
+        Slimefun.runSyncAtLocation(
                 () -> {
                     // Make sure the Block has not been occupied yet
                     if (b.isEmpty()) {
@@ -264,7 +264,7 @@ public class BlockPlacer extends SlimefunItem {
                         }
                     }
                 },
-                2L);
+                2L,b.getLocation());
     }
 
     @Override

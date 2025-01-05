@@ -200,7 +200,7 @@ public class ClimbingPick extends SimpleSlimefunItem<ItemUseHandler> implements 
         if (power > 0.05) {
             // Prevent players from spamming this item by enforcing a cooldown
             if (users.add(p.getUniqueId())) {
-                Slimefun.runSync(() -> users.remove(p.getUniqueId()), COOLDOWN);
+                Slimefun.runSyncAtEntity(() -> users.remove(p.getUniqueId()), COOLDOWN,p);
                 Vector velocity = new Vector(0, power, 0);
                 ClimbingPickLaunchEvent event = new ClimbingPickLaunchEvent(p, velocity, this, item, block);
                 Bukkit.getPluginManager().callEvent(event);

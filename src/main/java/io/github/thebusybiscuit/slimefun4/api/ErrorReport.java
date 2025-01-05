@@ -109,7 +109,7 @@ public class ErrorReport<T extends Throwable> {
                     Slimefun.getDatabaseManager().getBlockDataController().getBlockData(l);
 
             if (blockData == null) {
-                Slimefun.runSync(() -> Slimefun.getBlockDataService()
+                Slimefun.runSyncAtLocation(() -> Slimefun.getBlockDataService()
                         .getUniversalDataUUID(l.getBlock())
                         .ifPresentOrElse(
                                 uuid -> {
@@ -127,7 +127,7 @@ public class ErrorReport<T extends Throwable> {
                                         stream.println("该方块没有任何数据.");
                                     }
                                 },
-                                () -> stream.println("该方块没有任何数据.")));
+                                () -> stream.println("该方块没有任何数据.")),l);
             } else {
                 stream.println("  数据加载状态: " + blockData.isDataLoaded());
                 stream.println("  物品栏: " + (blockData.getBlockMenu() != null));
