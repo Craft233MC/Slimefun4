@@ -1,4 +1,9 @@
-# 不可用状态
+# Slimefun4 on Folia
+尝试让Slimefun4在Folia上运行,目前WIP  
+
+**不要投入到生产环境中使用！**
+
+**需要使用Craft233仓库内的dough进行编译，以解决聊天事件问题**
 
 # Slimefun 中文版
 
