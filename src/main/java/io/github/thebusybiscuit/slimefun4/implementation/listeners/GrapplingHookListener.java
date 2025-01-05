@@ -189,7 +189,7 @@ public class GrapplingHookListener implements Listener {
                 player.setVelocity(velocity);
 
                 hook.remove();
-                Slimefun.runSyncAtEntity(() -> activeHooks.remove(player.getUniqueId()), 20L, arrow);
+                Slimefun.runSyncAtLocation(() -> activeHooks.remove(player.getUniqueId()), 20L, arrow.getLocation());
             }
         }
     }
