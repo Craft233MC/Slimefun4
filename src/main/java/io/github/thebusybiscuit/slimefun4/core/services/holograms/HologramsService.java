@@ -299,7 +299,13 @@ public class HologramsService {
             }
         };
 
-        Slimefun.runSyncAtLocation(runnable, loc);
+        if (Slimefun.getFoliaLib().isFolia()){
+            Slimefun.runSyncAtLocation(runnable, loc);
+        } else if (Bukkit.isPrimaryThread()) {
+            runnable.run();
+        } else {
+            Slimefun.runSync(runnable);
+        }
 
     }
 
