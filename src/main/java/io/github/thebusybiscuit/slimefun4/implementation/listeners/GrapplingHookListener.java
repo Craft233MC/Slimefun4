@@ -171,7 +171,7 @@ public class GrapplingHookListener implements Listener {
                 } else {
                     Location l = player.getLocation();
                     l.setY(l.getY() + 0.5);
-                    player.teleport(l);
+                    player.teleportAsync(l);
 
                     double g = -0.08;
                     double d = target.distance(l);
