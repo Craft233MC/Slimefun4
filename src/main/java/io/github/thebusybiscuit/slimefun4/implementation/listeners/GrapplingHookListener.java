@@ -69,13 +69,13 @@ public class GrapplingHookListener implements Listener {
             return;
         }
 
-        Slimefun.runSyncAtEntity(
+        Slimefun.runSyncAtLocation(
                 () -> {
                     if (e.getEntity() instanceof Arrow arrow) {
                         handleGrapplingHook(arrow);
                     }
                 },
-                2L, e.getEntity());
+                2L, e.getEntity().getLocation());
     }
 
     @EventHandler
@@ -207,7 +207,7 @@ public class GrapplingHookListener implements Listener {
         activeHooks.put(uuid, hook);
 
         // To fix issue #253
-        Slimefun.runSyncAtEntity(
+        Slimefun.runSyncAtLocation(
                 () -> {
                     GrapplingHookEntity entity = activeHooks.get(uuid);
 
@@ -215,14 +215,14 @@ public class GrapplingHookListener implements Listener {
                         Slimefun.getBowListener().getProjectileData().remove(uuid);
                         entity.remove();
 
-                        Slimefun.runSyncAtEntity(
+                        Slimefun.runSyncAtLocation(
                                 () -> {
                                     activeHooks.remove(uuid);
                                     invulnerability.remove(uuid);
                                 },
-                                20L,arrow);
+                                20L,arrow.getLocation());
                     }
                 },
-                despawnTicks, arrow);
+                despawnTicks, arrow.getLocation());
     }
 }
