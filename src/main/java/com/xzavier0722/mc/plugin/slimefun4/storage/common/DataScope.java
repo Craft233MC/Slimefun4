@@ -12,7 +12,8 @@ public enum DataScope {
     BLOCK_INVENTORY(new FieldKey[] {FieldKey.LOCATION, FieldKey.INVENTORY_SLOT}),
     UNIVERSAL_RECORD(new FieldKey[] {FieldKey.UNIVERSAL_UUID}),
     UNIVERSAL_DATA(new FieldKey[] {FieldKey.UNIVERSAL_UUID, FieldKey.DATA_KEY}),
-    UNIVERSAL_INVENTORY(new FieldKey[] {FieldKey.UNIVERSAL_UUID, FieldKey.INVENTORY_SLOT});
+    UNIVERSAL_INVENTORY(new FieldKey[] {FieldKey.UNIVERSAL_UUID, FieldKey.INVENTORY_SLOT}),
+    TABLE_INFORMATION;
 
     private final FieldKey[] primaryKeys;
 

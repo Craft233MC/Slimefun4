@@ -37,20 +37,40 @@ class EnvironmentChecker {
     }
 
     static boolean checkHybridServer() {
+
         try {
-            Class.forName("cpw.mods.modlauncher.Launcher");
-            Class.forName("net.minecraftforge.server.console.TerminalHandler");
+            Class.forName("cpw.mods.modlauncher.Launcher", false, ClassLoader.getSystemClassLoader());
+            return true;
+        } catch (ClassNotFoundException ignored) {
+        }
+
+        try {
+            Class.forName(
+                    "net.minecraftforge.server.console.TerminalHandler", false, ClassLoader.getSystemClassLoader());
 
             return true;
         } catch (ClassNotFoundException ignored) {
-            if (Bukkit.getPluginCommand("mohist") != null) {
-                return true;
-            }
-
-            var serverVer = Bukkit.getVersion().toLowerCase();
-
-            return serverVer.contains("arclight") || serverVer.contains("mohist");
         }
+
+        try {
+            Class.forName("org.cardboardpowered.mixin.CardboardMixinPlugin", false, ClassLoader.getSystemClassLoader());
+            return true;
+        } catch (ClassNotFoundException ignored) {
+        }
+
+        try {
+            Class.forName("net.fabricmc.loader.impl.FabricLoaderImpl", false, ClassLoader.getSystemClassLoader());
+            return true;
+        } catch (ClassNotFoundException ignored) {
+        }
+
+        if (Bukkit.getPluginCommand("mohist") != null) {
+            return true;
+        }
+
+        var serverVer = Bukkit.getVersion().toLowerCase();
+
+        return serverVer.contains("arclight") || serverVer.contains("mohist");
     }
 
     static void scheduleSlimeGlueCheck(@Nonnull Slimefun sf) {

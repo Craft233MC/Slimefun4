@@ -14,15 +14,18 @@ import static com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlC
 import static com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlConstants.FIELD_PLAYER_UUID;
 import static com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlConstants.FIELD_RESEARCH_KEY;
 import static com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlConstants.FIELD_SLIMEFUN_ID;
+import static com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlConstants.FIELD_TABLE_VERSION;
 import static com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlConstants.FIELD_UNIVERSAL_TRAITS;
 import static com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlConstants.FIELD_UNIVERSAL_UUID;
 
+import com.xzavier0722.mc.plugin.slimefun4.storage.adapter.IDataSourceAdapter;
 import com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlCommonAdapter;
 import com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlUtils;
 import com.xzavier0722.mc.plugin.slimefun4.storage.common.DataScope;
 import com.xzavier0722.mc.plugin.slimefun4.storage.common.DataType;
 import com.xzavier0722.mc.plugin.slimefun4.storage.common.RecordKey;
 import com.xzavier0722.mc.plugin.slimefun4.storage.common.RecordSet;
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.List;
 
 public class MysqlAdapter extends SqlCommonAdapter<MysqlConfig> {
@@ -47,6 +50,9 @@ public class MysqlAdapter extends SqlCommonAdapter<MysqlConfig> {
                 createBlockStorageTables();
             }
         }
+
+        tableInformationTable = SqlUtils.mapTable(DataScope.TABLE_INFORMATION, config.tablePrefix());
+        createTableInformationTable();
     }
 
     @Override
@@ -380,5 +386,20 @@ public class MysqlAdapter extends SqlCommonAdapter<MysqlConfig> {
                 + FIELD_DATA_KEY
                 + ")"
                 + ");");
+    }
+
+    private void createTableInformationTable() {
+        executeSql("CREATE TABLE IF NOT EXISTS "
+                + tableInformationTable
+                + "("
+                + FIELD_TABLE_VERSION
+                + " INT UNIQUE NOT NULL DEFAULT '0'"
+                + ");");
+
+        if (Slimefun.isNewlyInstalled()) {
+            executeSql("INSERT INTO " + tableInformationTable + " (" + FIELD_TABLE_VERSION + ") SELECT '"
+                    + IDataSourceAdapter.DATABASE_VERSION + "' WHERE NOT EXISTS (SELECT 1 FROM " + tableInformationTable
+                    + ")");
+        }
     }
 }

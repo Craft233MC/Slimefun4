@@ -124,7 +124,7 @@ public class Crucible extends SimpleSlimefunItem<BlockUseHandler> implements Rec
                     Block block = b.getRelative(BlockFace.UP);
 
                     // Just ignore slimefun block above.
-                    if (StorageCacheUtils.hasBlock(block.getLocation())) return;
+                    if (StorageCacheUtils.hasSlimefunBlock(block.getLocation())) return;
 
                     if (craft(p, input)) {
                         boolean water = Tag.LEAVES.isTagged(input.getType());

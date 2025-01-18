@@ -23,7 +23,7 @@ public class VaultIntegration {
                 plugin.getLogger().log(Level.WARNING, "无法接入 Vault. 如果你是 CMI 用户, 请至配置文件启用经济系统");
             }
         } else {
-            plugin.getLogger().log(Level.WARNING, "无法接入 Vault. 你必须先安装 Vault!");
+            plugin.getLogger().log(Level.WARNING, "无法接入 Vault, 使用游戏币解锁研究功能将无法使用");
         }
     }
 

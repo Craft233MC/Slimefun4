@@ -10,12 +10,14 @@ import com.xzavier0722.mc.plugin.slimefun4.storage.util.DataUtils;
 import io.github.thebusybiscuit.slimefun4.api.player.PlayerBackpack;
 import io.github.thebusybiscuit.slimefun4.api.player.PlayerProfile;
 import io.github.thebusybiscuit.slimefun4.api.researches.Research;
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -275,11 +277,15 @@ public class ProfileDataController extends ADataController {
             if (is == null) {
                 scheduleDeleteTask(new UUIDKey(DataScope.NONE, bp.getOwner().getUniqueId()), key, false);
             } else {
-                var data = new RecordSet();
-                data.put(FieldKey.BACKPACK_ID, id);
-                data.put(FieldKey.INVENTORY_SLOT, slot + "");
-                data.put(FieldKey.INVENTORY_ITEM, is);
-                scheduleWriteTask(new UUIDKey(DataScope.NONE, bp.getOwner().getUniqueId()), key, data, false);
+                try {
+                    var data = new RecordSet();
+                    data.put(FieldKey.BACKPACK_ID, id);
+                    data.put(FieldKey.INVENTORY_SLOT, slot + "");
+                    data.put(FieldKey.INVENTORY_ITEM, is);
+                    scheduleWriteTask(new UUIDKey(DataScope.NONE, bp.getOwner().getUniqueId()), key, data, false);
+                } catch (IllegalArgumentException e) {
+                    Slimefun.logger().log(Level.WARNING, e.getMessage());
+                }
             }
         });
     }

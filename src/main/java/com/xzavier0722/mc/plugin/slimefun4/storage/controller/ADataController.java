@@ -42,6 +42,7 @@ public abstract class ADataController {
     public void init(IDataSourceAdapter<?> dataAdapter, int maxReadThread, int maxWriteThread) {
         this.dataAdapter = dataAdapter;
         dataAdapter.initStorage(dataType);
+        dataAdapter.patch();
         readExecutor = Executors.newFixedThreadPool(maxReadThread, threadFactory);
         writeExecutor = Executors.newFixedThreadPool(maxWriteThread, threadFactory);
         callbackExecutor = Executors.newCachedThreadPool(threadFactory);

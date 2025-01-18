@@ -108,7 +108,7 @@ public class DebugFishListener implements Listener {
             return;
         }
 
-        if (StorageCacheUtils.hasBlock(b.getLocation()) || StorageCacheUtils.hasUniversalBlock(b.getLocation())) {
+        if (StorageCacheUtils.hasSlimefunBlock(b.getLocation())) {
             var data = StorageCacheUtils.hasBlock(b.getLocation())
                     ? StorageCacheUtils.getBlock(b.getLocation())
                     : StorageCacheUtils.getUniversalBlock(b);

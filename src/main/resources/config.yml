@@ -37,6 +37,7 @@ options:
   backup-data: true
   drop-block-creative: true
   bypass-environment-check: false
+  bypass-item-length-check: false
 
 guide:
   # 是否在指南中展示原版物品合成配方

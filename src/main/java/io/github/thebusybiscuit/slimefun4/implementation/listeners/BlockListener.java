@@ -95,7 +95,7 @@ public class BlockListener implements Listener {
                     e.setCancelled(true);
                 }
             }
-        } else if (StorageCacheUtils.hasBlock(loc)) {
+        } else if (StorageCacheUtils.hasSlimefunBlock(loc)) {
             // If there is no air (e.g. grass) then don't let the block be placed
             e.setCancelled(true);
         }
@@ -113,37 +113,21 @@ public class BlockListener implements Listener {
         ItemStack item = e.getItemInHand();
         SlimefunItem sfItem = SlimefunItem.getByItem(item);
 
-        // TODO: Protection manager is null in testing environment.
-        if (!Slimefun.instance().isUnitTest()) {
-            Slimefun.getProtectionManager().logAction(e.getPlayer(), e.getBlock(), Interaction.PLACE_BLOCK);
-        }
-
         if (sfItem != null && !(sfItem instanceof NotPlaceable)) {
+            // Fixes #994, should check placed block is equals to item material or not.
+            if (item.getType() != e.getBlock().getType()) {
+                if (item.getType() != e.getBlock().getBlockData().getPlacementMaterial()) {
+                    return;
+                }
+            }
+
             if (!sfItem.canUse(e.getPlayer(), true)) {
                 e.setCancelled(true);
             } else {
                 var block = e.getBlock();
-                if (block.getBlockData() instanceof Rotatable rotatable
-                        && !(rotatable.getRotation() == BlockFace.UP || rotatable.getRotation() == BlockFace.DOWN)) {
-                    BlockFace rotation = null;
 
-                    if (sfItem instanceof NotCardinallyRotatable && sfItem instanceof NotDiagonallyRotatable) {
-                        rotation = BlockFace.NORTH;
-                    } else if (sfItem instanceof NotRotatable notRotatable) {
-                        rotation = notRotatable.getRotation();
-                    } else if (sfItem instanceof NotCardinallyRotatable notRotatable) {
-                        rotation = notRotatable.getRotation(Location.normalizeYaw(
-                                e.getPlayer().getLocation().getYaw()));
-                    } else if (sfItem instanceof NotDiagonallyRotatable notRotatable) {
-                        rotation = notRotatable.getRotation(Location.normalizeYaw(
-                                e.getPlayer().getLocation().getYaw()));
-                    }
+                optimizePlacement(sfItem, block, e.getPlayer().getLocation());
 
-                    if (rotation != null) {
-                        rotatable.setRotation(rotation);
-                        block.setBlockData(rotatable);
-                    }
-                }
                 var placeEvent = new SlimefunBlockPlaceEvent(e.getPlayer(), item, block, sfItem);
                 Bukkit.getPluginManager().callEvent(placeEvent);
 
@@ -188,7 +172,7 @@ public class BlockListener implements Listener {
 
         var heldItem = e.getPlayer().getInventory().getItemInMainHand();
         var block = e.getBlock();
-        var blockData = StorageCacheUtils.hasBlock(block.getLocation())
+        var blockData = StorageCacheUtils.getBlock(block.getLocation()) != null
                 ? StorageCacheUtils.getBlock(block.getLocation())
                 : StorageCacheUtils.getUniversalBlock(block);
         var sfItem = blockData == null ? null : SlimefunItem.getById(blockData.getSfId());
@@ -372,10 +356,8 @@ public class BlockListener implements Listener {
      * This method checks recursively for any sensitive blocks
      * that are no longer supported due to this block breaking
      *
-     * @param block
-     *      The {@link Block} in question
-     * @param count
-     *      The amount of times this has been recursively called
+     * @param block The {@link Block} in question
+     * @param count The amount of times this has been recursively called
      */
     @ParametersAreNonnullByDefault
     private void checkForSensitiveBlocks(Block block, Integer count, boolean isDropItems) {
@@ -407,12 +389,9 @@ public class BlockListener implements Listener {
      * This method checks if the {@link BlockData} would be
      * supported at the given {@link Block}.
      *
-     * @param blockData
-     *      The {@link BlockData} to check
-     * @param block
-     *      The {@link Block} the {@link BlockData} would be at
-     * @return
-     *      Whether the {@link BlockData} would be supported at the given {@link Block}
+     * @param blockData The {@link BlockData} to check
+     * @param block     The {@link Block} the {@link BlockData} would be at
+     * @return Whether the {@link BlockData} would be supported at the given {@link Block}
      */
     @ParametersAreNonnullByDefault
     private boolean isSupported(BlockData blockData, Block block) {
@@ -446,5 +425,28 @@ public class BlockListener implements Listener {
         }
 
         return amount;
+    }
+
+    // 美化可旋转类 (如头颅) 物品放置
+    private void optimizePlacement(SlimefunItem sfItem, Block block, Location l) {
+        if (block.getBlockData() instanceof Rotatable rotatable
+                && !(rotatable.getRotation() == BlockFace.UP || rotatable.getRotation() == BlockFace.DOWN)) {
+            BlockFace rotation = null;
+
+            if (sfItem instanceof NotCardinallyRotatable && sfItem instanceof NotDiagonallyRotatable) {
+                rotation = BlockFace.NORTH;
+            } else if (sfItem instanceof NotRotatable notRotatable) {
+                rotation = notRotatable.getRotation();
+            } else if (sfItem instanceof NotCardinallyRotatable notRotatable) {
+                rotation = notRotatable.getRotation(Location.normalizeYaw(l.getYaw()));
+            } else if (sfItem instanceof NotDiagonallyRotatable notRotatable) {
+                rotation = notRotatable.getRotation(Location.normalizeYaw(l.getYaw()));
+            }
+
+            if (rotation != null) {
+                rotatable.setRotation(rotation);
+                block.setBlockData(rotatable);
+            }
+        }
     }
 }

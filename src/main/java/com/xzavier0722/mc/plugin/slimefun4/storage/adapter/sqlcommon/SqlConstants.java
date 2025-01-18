@@ -12,6 +12,7 @@ public interface SqlConstants {
     String TABLE_NAME_UNIVERSAL_INVENTORY = "universal_inventory";
     String TABLE_NAME_UNIVERSAL_RECORD = "universal_record";
     String TABLE_NAME_UNIVERSAL_DATA = "universal_data";
+    String TABLE_NAME_TABLE_INFORMATION = "table_information";
 
     String FIELD_PLAYER_UUID = "p_uuid";
     String FIELD_PLAYER_NAME = "p_name";
@@ -36,4 +37,6 @@ public interface SqlConstants {
     String FIELD_UNIVERSAL_UUID = "universal_uuid";
 
     String FIELD_UNIVERSAL_TRAITS = "universal_traits";
+
+    String FIELD_TABLE_VERSION = "table_version";
 }

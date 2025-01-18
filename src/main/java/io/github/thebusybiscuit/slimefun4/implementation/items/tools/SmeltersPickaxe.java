@@ -38,7 +38,7 @@ public class SmeltersPickaxe extends SimpleSlimefunItem<ToolUseHandler> implemen
             Block b = e.getBlock();
 
             if (SlimefunTag.SMELTERS_PICKAXE_BLOCKS.isTagged(b.getType())
-                    && !StorageCacheUtils.hasBlock(b.getLocation())) {
+                    && !StorageCacheUtils.hasSlimefunBlock(b.getLocation())) {
                 Collection<ItemStack> blockDrops = b.getDrops(tool);
                 List<ItemStack> itemDrops = new ArrayList<>();
                 for (ItemStack drop : blockDrops) {

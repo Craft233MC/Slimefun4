@@ -101,6 +101,11 @@ class VersionsCommand extends SubCommand {
                 builder.append("\n已禁用环境兼容性检查").color(ChatColor.RED);
             }
 
+            if (Slimefun.getConfigManager().isBypassItemLengthCheck()) {
+                builder.append("\n").event((HoverEvent) null);
+                builder.append("\n已禁用物品长度检查").color(ChatColor.RED);
+            }
+
             builder.append("\n").event((HoverEvent) null);
             addPluginVersions(builder);
 

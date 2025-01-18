@@ -77,7 +77,7 @@ public class ProgrammableAndroid extends SlimefunItem
     private static final List<BlockFace> POSSIBLE_ROTATIONS =
             Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST);
     private static final int[] BORDER = {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 24, 25, 26, 27, 33, 35, 36, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 24, 26, 27, 33, 35, 36, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53
     };
     private static final int[] OUTPUT_BORDER = {10, 11, 12, 13, 14, 19, 23, 28, 32, 37, 38, 39, 40, 41};
     private static final String DEFAULT_SCRIPT = "START-TURN_LEFT-REPEAT";
@@ -1033,8 +1033,10 @@ public class ProgrammableAndroid extends SlimefunItem
             Slimefun.getTickerTask().disableTicker(from.getLocation());
 
             // Bro encountered a ghost 💀
-            if (StorageCacheUtils.hasBlock(to.getLocation())) {
-                var data = StorageCacheUtils.getBlock(to.getLocation());
+            if (StorageCacheUtils.hasSlimefunBlock(to.getLocation())) {
+                var data = StorageCacheUtils.getBlock(to.getLocation()) == null
+                        ? StorageCacheUtils.getBlock(to.getLocation())
+                        : StorageCacheUtils.getUniversalBlock(to);
                 if (data != null && !data.isPendingRemove()) {
                     // Since it's a ghost, we just hunt it.
                     Slimefun.getDatabaseManager().getBlockDataController().removeBlock(to.getLocation());
