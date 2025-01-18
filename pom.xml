@@ -348,7 +348,7 @@
         <dependency>
             <groupId>com.github.technicallycoded</groupId>
             <artifactId>FoliaLib</artifactId>
-            <version>0.4.3</version>
+            <version>main-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
