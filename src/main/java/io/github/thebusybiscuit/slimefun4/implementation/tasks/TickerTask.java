@@ -28,7 +28,6 @@ import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitScheduler;
 
 /**
  * The {@link TickerTask} is responsible for ticking every {@link BlockTicker},
