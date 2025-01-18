@@ -37,9 +37,13 @@ Slimefun 让每个玩家可以自行决定在魔法或科技方面发展。
 * **[FAQ](https://slimefun-wiki.guizhanss.cn/FAQ)**
 * 
 ## :computer: 如何编译
-要编译 Slimefun4，你必须先安装 [Git](https://git-scm.com/)  
-**需要使用Craft233仓库内的dough进行编译，以解决聊天事件问题**  
+要编译 Slimefun4，你必须先安装 [Git](https://git-scm.com/)
 然后 `git clone https://github.com/SlimefunGuguProject/Slimefun4.git`
+**需要使用Craft233仓库内的dough进行编译，以解决聊天事件问题**
+初始化本地依赖
+```
+mvn install:install-file -Dfile=lib/dough.jar -DgroupId=top.craft233 -DartifactId=dough-api -Dversion=1.3.1-SNAPSHOT -Dpackaging=jar
+``` 
 最后如果你是 Windows 系统: `.\mvnw.cmd package`
 如果你是类 Unix 系统: `.\mvnw package`
 
