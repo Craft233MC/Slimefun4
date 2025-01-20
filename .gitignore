@@ -21,3 +21,6 @@ dependency-reduced-pom.xml
 /.git-versioned-pom.xml
 
 *.db
+
+# no prebuilt lib jar
+lib/*.jar

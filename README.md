@@ -43,6 +43,7 @@ Slimefun 让每个玩家可以自行决定在魔法或科技方面发展。
 初始化本地依赖
 ```
 mvn install:install-file -Dfile=lib/dough.jar -DgroupId=top.craft233 -DartifactId=dough-api -Dversion=1.3.1-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=lib/guizhanlib-updater.jar -DgroupId=top.craft233 -DartifactId=guizhanlib-updater -Dversion=2.2.0 -Dpackaging=jar
 ``` 
 最后如果你是 Windows 系统: `.\mvnw.cmd package`
 如果你是类 Unix 系统: `.\mvnw package`
