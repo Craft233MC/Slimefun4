@@ -304,7 +304,7 @@ public class HologramsService {
         } else if (Bukkit.isPrimaryThread()) {
             runnable.run();
         } else {
-            Slimefun.runSync(runnable);
+            Slimefun.runSyncAtLocation(runnable, loc);
         }
 
     }
