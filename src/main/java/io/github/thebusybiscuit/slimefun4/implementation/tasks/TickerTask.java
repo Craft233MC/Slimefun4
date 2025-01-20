@@ -181,7 +181,9 @@ public class TickerTask implements Runnable {
 
                 tickers.add(item.getBlockTicker());
             } catch (Exception x) {
-                reportErrors(l, item, x);
+                Slimefun.runSyncAtLocation(() -> {
+                    reportErrors(l, item, x);
+                }, l);
             }
         }
     }
@@ -219,7 +221,9 @@ public class TickerTask implements Runnable {
 
                 tickers.add(item.getBlockTicker());
             } catch (Exception x) {
-                reportErrors(l, item, x);
+                Slimefun.runSyncAtLocation(() -> {
+                    reportErrors(l, item, x);
+                }, l);
             }
         }
     }
@@ -235,13 +239,17 @@ public class TickerTask implements Runnable {
                 }
             } else {
                 if (data instanceof SlimefunBlockData blockData) {
-                    item.getBlockTicker().tick(l.getBlock(), item, blockData);
+                    Slimefun.runSyncAtLocation(() -> {
+                        item.getBlockTicker().tick(l.getBlock(), item, blockData);
+                    }, l);
                 } else {
                     throw new IllegalStateException("BlockTicker is non-universal but item is universal!");
                 }
             }
         } catch (Exception | LinkageError x) {
-            reportErrors(l, item, x);
+            Slimefun.runSyncAtLocation(() -> {
+                reportErrors(l, item, x);
+            }, l);
         } finally {
             Slimefun.getProfiler().closeEntry(l, item, timestamp);
         }
