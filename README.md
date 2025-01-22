@@ -41,7 +41,7 @@ Slimefun 让每个玩家可以自行决定在魔法或科技方面发展。
 然后 `git clone https://github.com/SlimefunGuguProject/Slimefun4.git`
 编译需要分两步  
 第一次直接编译，补全下载的依赖  
-第二步使用自编译的dough等依赖替换本地仓库的文件并在idea开启离线模式，再次编译
+第二步使用自编译的dough等依赖替换本地仓库的文件并在idea开启离线模式，使用`mvn clean package`编译
 **需要使用Craft233仓库内的dough进行编译，以解决聊天事件问题**
 最后如果你是 Windows 系统: `.\mvnw.cmd package`
 如果你是类 Unix 系统: `.\mvnw package`
