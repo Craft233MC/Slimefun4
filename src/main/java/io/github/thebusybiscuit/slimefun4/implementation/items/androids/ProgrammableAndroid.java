@@ -221,7 +221,7 @@ public class ProgrammableAndroid extends SlimefunItem
 
                 if (uniData != null) {
                     if (!e.getPlayer().hasPermission("slimefun.android.bypass")
-                            && !e.getPlayer().getUniqueId().equals(uniData.getData("owner"))) {
+                            && !e.getPlayer().getUniqueId().toString().equals(uniData.getData("owner"))) {
                         // The Player is not allowed to break this android
                         e.setCancelled(true);
                         return;

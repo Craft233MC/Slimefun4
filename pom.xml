@@ -139,7 +139,7 @@
                 <!-- Dependency shading -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.6.0</version>
 
                 <configuration>
                     <!-- Relocate these to avoid clashes and conflicts -->
@@ -342,7 +342,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.3</version>
+            <version>42.7.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -356,7 +356,7 @@
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-core</artifactId>
-            <version>7.2.19</version>
+            <version>7.3.6</version>
             <scope>provided</scope>
 
             <exclusions>
@@ -370,7 +370,7 @@
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>7.2.19</version>
+            <version>7.3.6</version>
             <scope>provided</scope>
 
             <exclusions>

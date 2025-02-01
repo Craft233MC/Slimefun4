@@ -2,6 +2,8 @@ package io.github.thebusybiscuit.slimefun4.implementation.listeners;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalBlockData;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.thebusybiscuit.slimefun4.api.MinecraftVersion;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
@@ -63,7 +65,9 @@ public class ExplosionsListener implements Listener {
         while (blocks.hasNext()) {
             Block block = blocks.next();
             var loc = block.getLocation();
-            var blockData = StorageCacheUtils.getBlock(loc);
+            var blockData = StorageCacheUtils.hasBlock(loc)
+                    ? StorageCacheUtils.getBlock(loc)
+                    : StorageCacheUtils.getUniversalBlock(loc);
             SlimefunItem item = blockData == null ? null : SlimefunItem.getById(blockData.getSfId());
 
             if (item != null) {
@@ -75,17 +79,31 @@ public class ExplosionsListener implements Listener {
                             if (blockData.isDataLoaded()) {
                                 handleExplosion(handler, block);
                             } else {
-                                controller.loadBlockDataAsync(blockData, new IAsyncReadCallback<>() {
-                                    @Override
-                                    public boolean runOnMainThread() {
-                                        return true;
-                                    }
+                                if (blockData instanceof SlimefunBlockData sbd) {
+                                    controller.loadBlockDataAsync(sbd, new IAsyncReadCallback<>() {
+                                        @Override
+                                        public boolean runOnMainThread() {
+                                            return true;
+                                        }
 
-                                    @Override
-                                    public void onResult(SlimefunBlockData result) {
-                                        handleExplosion(handler, block);
-                                    }
-                                });
+                                        @Override
+                                        public void onResult(SlimefunBlockData result) {
+                                            handleExplosion(handler, block);
+                                        }
+                                    });
+                                } else if (blockData instanceof SlimefunUniversalBlockData ubd) {
+                                    controller.loadUniversalDataAsync(ubd, new IAsyncReadCallback<>() {
+                                        @Override
+                                        public boolean runOnMainThread() {
+                                            return true;
+                                        }
+
+                                        @Override
+                                        public void onResult(SlimefunUniversalData result) {
+                                            handleExplosion(handler, block);
+                                        }
+                                    });
+                                }
                             }
                         })) {
                     controller.removeBlock(loc);

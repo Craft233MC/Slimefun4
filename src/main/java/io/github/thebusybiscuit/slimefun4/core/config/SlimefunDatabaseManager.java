@@ -162,8 +162,14 @@ public class SlimefunDatabaseManager {
             getBlockDataController().shutdown();
         }
 
-        blockStorageAdapter.shutdown();
-        profileAdapter.shutdown();
+        if (blockStorageAdapter != null) {
+            blockStorageAdapter.shutdown();
+        }
+
+        if (profileAdapter != null) {
+            profileAdapter.shutdown();
+        }
+
         ControllerHolder.clearControllers();
     }
 
