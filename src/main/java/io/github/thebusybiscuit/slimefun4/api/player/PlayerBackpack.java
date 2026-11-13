@@ -57,6 +57,13 @@ public class PlayerBackpack extends SlimefunInventoryHolder {
     @Getter
     private InvSnapshot snapshot;
 
+    /**
+     * Loads the backpack bound to the given item and invokes the callback.
+     * <p>
+     * {@code runCbOnMainThread = true} uses the global (region) scheduler. On Folia that thread does
+     * <b>not</b> own any player or block, so callbacks touching entities must schedule themselves
+     * with {@code Slimefun#runSyncAtEntity} / {@code Slimefun#runSyncAtLocation}.
+     */
     public static void getAsync(ItemStack item, Consumer<PlayerBackpack> callback, boolean runCbOnMainThread) {
         if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasLore()) {
             return;

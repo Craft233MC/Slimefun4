@@ -72,6 +72,7 @@ body:
     attributes:
       label: Minecraft 版本
       options:
+        - 26.3.x
         - 26.2.x
         - 26.1.x
         - 1.21.x

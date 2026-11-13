@@ -9,6 +9,8 @@ import java.util.function.Consumer;
  * You can run your original {@link IAsyncReadCallback} callbacks using {@link java.util.concurrent.CompletableFuture#thenAcceptAsync(Consumer, java.util.concurrent.Executor)}, don't forget to check whether the accepted value is null or not.
  * If you want to invoke callback not on the main thread, use the callback executor from the data controller.
  * If you want to invoke callback on the main thread, see {@link ThreadUtils#getMainThreadExecutor()} or {@link ThreadUtils#getMainDelayedExecutor()}.
+ * On Folia these two executors run on the global region scheduler; callbacks that touch players or blocks
+ * must instead be scheduled with {@code Slimefun#runSyncAtEntity} / {@code Slimefun#runSyncAtLocation}.
  *
  * @param <T> the type of result returned by the callback
  */
