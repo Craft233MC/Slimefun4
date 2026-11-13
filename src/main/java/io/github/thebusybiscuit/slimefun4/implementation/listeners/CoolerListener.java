@@ -88,7 +88,15 @@ public class CoolerListener implements Listener {
      */
     private void takeJuiceFromCooler(@Nonnull Player p, @Nonnull ItemStack cooler) {
         if (PlayerBackpack.isOwnerOnline(cooler.getItemMeta())) {
-            PlayerBackpack.getAsync(cooler, backpack -> consumeJuice(p, cooler, backpack), true);
+            // Folia: getAsync(..., true) 走 ThreadUtils.getMainDelayedExecutor()，
+            // 也就是 FoliaGlobalRegionScheduler。在那个线程上调用 addPotionEffect /
+            // setSaturation 会触发 TickThread.ensureTickThread 并中断整个 consumeJuice，
+            // 导致果汁没有被移除、饱食度没有恢复。改回玩家所属区域线程执行。
+            PlayerBackpack.getAsync(cooler).thenAccept(backpack -> {
+                if (backpack != null) {
+                    Slimefun.runSyncAtEntity(() -> consumeJuice(p, cooler, backpack), 0, p);
+                }
+            });
         }
     }
 

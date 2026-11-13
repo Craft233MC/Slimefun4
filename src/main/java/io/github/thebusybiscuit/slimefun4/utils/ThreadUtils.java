@@ -12,6 +12,15 @@ public class ThreadUtils {
     private static final Executor MAIN_THREAD_EXECUTOR;
     private static final Executor MAIN_DELAYED_EXECUTOR;
 
+    /**
+     * Returns an executor for server-thread work.
+     * <p>
+     * On Folia this is backed by the global region scheduler, since there is no global main thread.
+     * Callers that touch owned objects (players, entities, blocks) must not rely on it: use
+     * {@code Slimefun#runSyncAtEntity} or {@code Slimefun#runSyncAtLocation} instead.
+     *
+     * @return An executor for server-thread work
+     */
     public static Executor getMainThreadExecutor() {
         return MAIN_THREAD_EXECUTOR;
     }
@@ -88,10 +97,11 @@ public class ThreadUtils {
     }
 
     /**
-     * Executes a runnable on the main thread using the NMS main executor.
+     * Executes a runnable on the server thread.
+     * On Paper this uses the NMS main executor; on Folia it uses the global region scheduler.
      * This is an internal method used by other ThreadUtils methods.
      *
-     * @param runnable The task to execute on the main thread
+     * @param runnable The task to execute on the server thread
      */
     private static void runSyncNMS(Runnable runnable) {
         MAIN_THREAD_EXECUTOR.execute(runnable);
@@ -99,21 +109,42 @@ public class ThreadUtils {
 
     static {
         Executor executor;
-        try {
-            Class<?> mcUtils = Class.forName("io.papermc.paper.util.MCUtil");
-            Field field = mcUtils.getDeclaredField("MAIN_EXECUTOR");
-            field.setAccessible(true);
-            executor = (Executor) field.get(null);
-        } catch (Throwable e) {
-            executor = (task) -> {
-                if (Bukkit.isPrimaryThread()) {
-                    task.run();
-                } else {
-                    Slimefun.runSync(task);
-                }
-            };
+        if (isFolia()) {
+            // Folia 没有全局主线程。Paper 的 MCUtil.MAIN_EXECUTOR 会调用
+            // MinecraftServer#execute()，而 Folia 把该方法改成直接抛 UnsupportedOperationException。
+            // 类本身在 Folia 上仍然存在，所以反射会"成功"并拿到一个必然报错的 Executor，
+            // 必须在这里先按平台分流，改用 FoliaLib 的全局区域调度器。
+            executor = Slimefun::runSync;
+        } else {
+            try {
+                Class<?> mcUtils = Class.forName("io.papermc.paper.util.MCUtil");
+                Field field = mcUtils.getDeclaredField("MAIN_EXECUTOR");
+                field.setAccessible(true);
+                executor = (Executor) field.get(null);
+            } catch (Throwable e) {
+                executor = (task) -> {
+                    if (Bukkit.isPrimaryThread()) {
+                        task.run();
+                    } else {
+                        Slimefun.runSync(task);
+                    }
+                };
+            }
         }
         MAIN_THREAD_EXECUTOR = executor;
         MAIN_DELAYED_EXECUTOR = Slimefun::runSync;
+    }
+
+    /**
+     * Detects Folia without depending on Slimefun's own initialization order
+     * ({@code Slimefun#getFoliaLib()} is only assigned during {@code onEnable()}).
+     */
+    private static boolean isFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
     }
 }

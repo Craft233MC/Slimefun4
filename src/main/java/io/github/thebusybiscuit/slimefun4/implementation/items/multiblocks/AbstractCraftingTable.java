@@ -10,11 +10,12 @@ import io.github.thebusybiscuit.slimefun4.core.multiblocks.MultiBlockMachine;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.items.backpacks.SlimefunBackpack;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
-import io.github.thebusybiscuit.slimefun4.utils.ThreadUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -68,7 +69,12 @@ abstract class AbstractCraftingTable extends MultiBlockMachine {
     // Return: true if upgrade from existing backpack, else false
     @ParametersAreNonnullByDefault
     protected boolean upgradeBackpack(
-            Player p, Inventory inv, SlimefunBackpack backpack, ItemStack output, Runnable onReadyCb) {
+            Player p,
+            Block triggerBlock,
+            Inventory inv,
+            SlimefunBackpack backpack,
+            ItemStack output,
+            Runnable onReadyCb) {
         ItemStack input = null;
 
         var contents = inv.getContents();
@@ -92,16 +98,32 @@ abstract class AbstractCraftingTable extends MultiBlockMachine {
         }
 
         int size = backpack.getSize();
+        // 提前取坐标：不要在数据库回调线程上碰方块对象
+        Location triggerLocation = triggerBlock.getLocation();
+
         PlayerBackpack.getAsync(input)
-                .thenAcceptAsync(
-                        (result) -> {
-                            if (result != null) {
-                                result.setSize(size);
-                                PlayerBackpack.bindItem(output, result);
-                            }
-                            onReadyCb.run();
-                        },
-                        ThreadUtils.getMainDelayedExecutor());
+                // 读旧背包失败也不能吞掉产物：退化成不带绑定的普通发放
+                .exceptionally(throwable -> {
+                    Slimefun.instance().getLogger().warning("读取旧背包失败，产物仍会正常发放: " + throwable);
+                    return null;
+                })
+                .thenAccept(result -> {
+                    // Folia: getAsync 的完成线程可能是数据库线程或 FoliaGlobalRegionScheduler。
+                    // 原先的 ThreadUtils.getMainDelayedExecutor 把回调放在全局线程上，而 onReadyCb
+                    // 会读方块、写容器、播放音效，于是 TickThread.ensureTickThread 抛出
+                    // "Cannot read world asynchronously" 并中断产物发放（材料却已被扣掉）。
+                    // 改回触发方块所属的区域线程执行，并保留 1 tick 延迟让调用方先扣完 9 格材料。
+                    Slimefun.runSyncAtLocation(
+                            () -> {
+                                if (result != null) {
+                                    result.setSize(size);
+                                    PlayerBackpack.bindItem(output, result);
+                                }
+                                onReadyCb.run();
+                            },
+                            1,
+                            triggerLocation);
+                });
 
         return true;
     }
