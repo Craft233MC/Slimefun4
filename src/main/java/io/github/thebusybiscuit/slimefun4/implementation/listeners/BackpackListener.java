@@ -206,8 +206,6 @@ public class BackpackListener implements Listener {
     public void openBackpack(Player p, ItemStack item, SlimefunBackpack backpack) {
         if (backpack.canUse(p, true)
                 && !PlayerProfile.get(p, profile -> {
-                    // PlayerProfile#get 的回调可能落在数据库读取线程上，而后续逻辑全都要碰玩家。
-                    // 先切回玩家所属的区域线程（Folia）/主线程（Paper）再继续。
                     if (Bukkit.isPrimaryThread()) {
                         openBackpackInternal(p, item, backpack);
                     } else {
@@ -276,49 +274,30 @@ public class BackpackListener implements Listener {
         if (backpacks.containsKey(p.getUniqueId())) {
             p.closeInventory();
         }
-        UUID puuid = p.getUniqueId();
-        openingPlayers.add(puuid);
-        PlayerBackpack.getAsync(item)
-                .exceptionally(ex -> {
-                    Slimefun.logger().warning(ex.getLocalizedMessage());
-                    log.error("Exception Occurred During Reading PlayerBackPack.", ex);
-                    return null;
-                })
-                .thenAccept(bp -> {
-                    // Folia: 不能用 ThreadUtils.getMainThreadExecutor()。那是 Paper 的
-                    // MCUtil.MAIN_EXECUTOR，内部调用 MinecraftServer#execute()，Folia 上会直接抛
-                    // UnsupportedOperationException，回调根本不会执行、openingPlayers 也会永久残留。
-                    // 打开背包属于玩家实体归属的操作，必须交给 EntityScheduler（区域线程）。
-                    Slimefun.runSyncAtEntity(
-                            () -> {
-                                openingPlayers.remove(puuid);
-                                if (!p.isOnline()) {
-                                    return;
-                                }
-                                // Check if the backpack item contains invalid backpack data
-                                if (bp == null || bp.isInvalid()) {
-                                    return;
-                                }
-                                // Check if someone else is currently viewing this backpack
-                                if (backpacks.containsValue(bp.getUniqueId())
-                                        || !bp.getInventory().getViewers().isEmpty()) {
-                                    Slimefun.getLocalization().sendMessage(p, "backpack.already-open", true);
-                                    return;
-                                }
-                                SoundEffect.BACKPACK_OPEN_SOUND.playAt(p.getLocation(), SoundCategory.PLAYERS);
-                                bp.open(p);
-                                backpacks.put(puuid, bp.getUniqueId());
-                                backpackInstances.put(puuid, backpackItem);
-                            },
-                            0,
-                            p);
-                })
-                .exceptionally(ex -> {
-                    // 兜底：任何失败（包括实体退休导致调度失败）都不能把玩家永久锁在 openingPlayers 里
-                    openingPlayers.remove(puuid);
-                    Slimefun.logger().warning(ex.getLocalizedMessage());
-                    log.error("Exception Occurred During Opening PlayerBackPack.", ex);
-                    return null;
-                });
+        openingPlayers.add(p.getUniqueId());
+        PlayerBackpack.getAsync(item).thenAccept(bp -> {
+            Slimefun.runSyncAtEntity(
+                    () -> {
+                        openingPlayers.remove(p.getUniqueId());
+                        if (!p.isOnline()) {
+                            return;
+                        }
+                        // Check if the backpack item contains invalid backpack data
+                        if (bp == null || bp.isInvalid()) {
+                            return;
+                        }
+                        // Check if someone else is currently viewing this backpack
+                        if (backpacks.containsValue(bp.getUniqueId())
+                                || !bp.getInventory().getViewers().isEmpty()) {
+                            Slimefun.getLocalization().sendMessage(p, "backpack.already-open", true);
+                            return;
+                        }
+                        SoundEffect.BACKPACK_OPEN_SOUND.playAt(p.getLocation(), SoundCategory.PLAYERS);
+                        bp.open(p);
+                        backpacks.put(p.getUniqueId(), bp.getUniqueId());
+                        backpackInstances.put(p.getUniqueId(), backpackItem);
+                    },
+                    p);
+        });
     }
 }

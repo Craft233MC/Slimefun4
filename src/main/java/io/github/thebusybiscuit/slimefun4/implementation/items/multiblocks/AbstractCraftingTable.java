@@ -98,21 +98,14 @@ abstract class AbstractCraftingTable extends MultiBlockMachine {
         }
 
         int size = backpack.getSize();
-        // 提前取坐标：不要在数据库回调线程上碰方块对象
         Location triggerLocation = triggerBlock.getLocation();
 
         PlayerBackpack.getAsync(input)
-                // 读旧背包失败也不能吞掉产物：退化成不带绑定的普通发放
                 .exceptionally(throwable -> {
-                    Slimefun.instance().getLogger().warning("读取旧背包失败，产物仍会正常发放: " + throwable);
+                    Slimefun.instance().getLogger().warning("Failed to read old backpack: " + throwable);
                     return null;
                 })
                 .thenAccept(result -> {
-                    // Folia: getAsync 的完成线程可能是数据库线程或 FoliaGlobalRegionScheduler。
-                    // 原先的 ThreadUtils.getMainDelayedExecutor 把回调放在全局线程上，而 onReadyCb
-                    // 会读方块、写容器、播放音效，于是 TickThread.ensureTickThread 抛出
-                    // "Cannot read world asynchronously" 并中断产物发放（材料却已被扣掉）。
-                    // 改回触发方块所属的区域线程执行，并保留 1 tick 延迟让调用方先扣完 9 格材料。
                     Slimefun.runSyncAtLocation(
                             () -> {
                                 if (result != null) {
@@ -121,7 +114,6 @@ abstract class AbstractCraftingTable extends MultiBlockMachine {
                                 }
                                 onReadyCb.run();
                             },
-                            1,
                             triggerLocation);
                 });
 

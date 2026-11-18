@@ -12,15 +12,6 @@ public class ThreadUtils {
     private static final Executor MAIN_THREAD_EXECUTOR;
     private static final Executor MAIN_DELAYED_EXECUTOR;
 
-    /**
-     * Returns an executor for server-thread work.
-     * <p>
-     * On Folia this is backed by the global region scheduler, since there is no global main thread.
-     * Callers that touch owned objects (players, entities, blocks) must not rely on it: use
-     * {@code Slimefun#runSyncAtEntity} or {@code Slimefun#runSyncAtLocation} instead.
-     *
-     * @return An executor for server-thread work
-     */
     public static Executor getMainThreadExecutor() {
         return MAIN_THREAD_EXECUTOR;
     }
@@ -98,7 +89,8 @@ public class ThreadUtils {
 
     /**
      * Executes a runnable on the server thread.
-     * On Paper this uses the NMS main executor; on Folia it uses the global region scheduler.
+     * On Paper this uses the NMS main executor.
+     * On Folia it uses the global region scheduler.
      * This is an internal method used by other ThreadUtils methods.
      *
      * @param runnable The task to execute on the server thread
@@ -109,11 +101,7 @@ public class ThreadUtils {
 
     static {
         Executor executor;
-        if (isFolia()) {
-            // Folia 没有全局主线程。Paper 的 MCUtil.MAIN_EXECUTOR 会调用
-            // MinecraftServer#execute()，而 Folia 把该方法改成直接抛 UnsupportedOperationException。
-            // 类本身在 Folia 上仍然存在，所以反射会"成功"并拿到一个必然报错的 Executor，
-            // 必须在这里先按平台分流，改用 FoliaLib 的全局区域调度器。
+        if (Slimefun.getFoliaLib().isFolia()) {
             executor = Slimefun::runSync;
         } else {
             try {
@@ -133,18 +121,5 @@ public class ThreadUtils {
         }
         MAIN_THREAD_EXECUTOR = executor;
         MAIN_DELAYED_EXECUTOR = Slimefun::runSync;
-    }
-
-    /**
-     * Detects Folia without depending on Slimefun's own initialization order
-     * ({@code Slimefun#getFoliaLib()} is only assigned during {@code onEnable()}).
-     */
-    private static boolean isFolia() {
-        try {
-            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
-            return true;
-        } catch (Throwable e) {
-            return false;
-        }
     }
 }
