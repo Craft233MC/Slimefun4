@@ -10,11 +10,12 @@ import io.github.thebusybiscuit.slimefun4.core.multiblocks.MultiBlockMachine;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.items.backpacks.SlimefunBackpack;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
-import io.github.thebusybiscuit.slimefun4.utils.ThreadUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -68,7 +69,12 @@ abstract class AbstractCraftingTable extends MultiBlockMachine {
     // Return: true if upgrade from existing backpack, else false
     @ParametersAreNonnullByDefault
     protected boolean upgradeBackpack(
-            Player p, Inventory inv, SlimefunBackpack backpack, ItemStack output, Runnable onReadyCb) {
+            Player p,
+            Block triggerBlock,
+            Inventory inv,
+            SlimefunBackpack backpack,
+            ItemStack output,
+            Runnable onReadyCb) {
         ItemStack input = null;
 
         var contents = inv.getContents();
@@ -92,16 +98,24 @@ abstract class AbstractCraftingTable extends MultiBlockMachine {
         }
 
         int size = backpack.getSize();
+        Location triggerLocation = triggerBlock.getLocation();
+
         PlayerBackpack.getAsync(input)
-                .thenAcceptAsync(
-                        (result) -> {
-                            if (result != null) {
-                                result.setSize(size);
-                                PlayerBackpack.bindItem(output, result);
-                            }
-                            onReadyCb.run();
-                        },
-                        ThreadUtils.getMainDelayedExecutor());
+                .exceptionally(throwable -> {
+                    Slimefun.instance().getLogger().warning("Failed to read old backpack: " + throwable);
+                    return null;
+                })
+                .thenAccept(result -> {
+                    Slimefun.runSyncAtLocation(
+                            () -> {
+                                if (result != null) {
+                                    result.setSize(size);
+                                    PlayerBackpack.bindItem(output, result);
+                                }
+                                onReadyCb.run();
+                            },
+                            triggerLocation);
+                });
 
         return true;
     }

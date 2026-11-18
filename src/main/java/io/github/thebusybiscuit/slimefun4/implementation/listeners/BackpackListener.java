@@ -7,16 +7,15 @@ import io.github.thebusybiscuit.slimefun4.core.services.sounds.SoundEffect;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.items.backpacks.Cooler;
 import io.github.thebusybiscuit.slimefun4.implementation.items.backpacks.SlimefunBackpack;
-import io.github.thebusybiscuit.slimefun4.utils.ThreadUtils;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.SoundCategory;
@@ -30,6 +29,8 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -43,16 +44,15 @@ import org.bukkit.inventory.ItemStack;
  * @author AtomicScience
  * @author VoidAngel
  * @author John000708
- *
  * @see SlimefunBackpack
  * @see PlayerBackpack
- *
  */
+@Slf4j
 public class BackpackListener implements Listener {
     // Stores the player uuid maps to the opening backpack uuid
-    private final Set<UUID> openingPlayers = new HashSet<>();
-    private final Map<UUID, UUID> backpacks = new HashMap<>();
-    private final Map<UUID, SlimefunBackpack> backpackInstances = new HashMap<>();
+    private final Set<UUID> openingPlayers = ConcurrentHashMap.newKeySet();
+    private final Map<UUID, UUID> backpacks = new ConcurrentHashMap<>();
+    private final Map<UUID, SlimefunBackpack> backpackInstances = new ConcurrentHashMap<>();
 
     public void register(@Nonnull Slimefun plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -71,6 +71,22 @@ public class BackpackListener implements Listener {
             Slimefun.getDatabaseManager().getProfileDataController().saveBackpackInventory(backpack);
             SoundEffect.BACKPACK_CLOSE_SOUND.playFor(p);
         }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        clearPlayerState(e.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onKick(PlayerKickEvent e) {
+        clearPlayerState(e.getPlayer().getUniqueId());
+    }
+
+    private void clearPlayerState(UUID uuid) {
+        openingPlayers.remove(uuid);
+        backpacks.remove(uuid);
+        backpackInstances.remove(uuid);
     }
 
     @EventHandler
@@ -188,7 +204,14 @@ public class BackpackListener implements Listener {
 
     @ParametersAreNonnullByDefault
     public void openBackpack(Player p, ItemStack item, SlimefunBackpack backpack) {
-        if (backpack.canUse(p, true) && !PlayerProfile.get(p, profile -> openBackpackInternal(p, item, backpack))) {
+        if (backpack.canUse(p, true)
+                && !PlayerProfile.get(p, profile -> {
+                    if (Bukkit.isPrimaryThread()) {
+                        openBackpackInternal(p, item, backpack);
+                    } else {
+                        Slimefun.runSyncAtEntity(() -> openBackpackInternal(p, item, backpack), 0, p);
+                    }
+                })) {
             Slimefun.getLocalization().sendMessage(p, "messages.opening-backpack");
         }
     }
@@ -252,25 +275,29 @@ public class BackpackListener implements Listener {
             p.closeInventory();
         }
         openingPlayers.add(p.getUniqueId());
-        PlayerBackpack.getAsync(item)
-                .thenAcceptAsync(
-                        bp -> {
-                            openingPlayers.remove(p.getUniqueId());
-                            // Check if the backpack item contains invalid backpack data
-                            if (bp == null || bp.isInvalid()) {
-                                return;
-                            }
-                            // Check if someone else is currently viewing this backpack
-                            if (backpacks.containsValue(bp.getUniqueId())
-                                    || !bp.getInventory().getViewers().isEmpty()) {
-                                Slimefun.getLocalization().sendMessage(p, "backpack.already-open", true);
-                                return;
-                            }
-                            SoundEffect.BACKPACK_OPEN_SOUND.playAt(p.getLocation(), SoundCategory.PLAYERS);
-                            bp.open(p);
-                            backpacks.put(p.getUniqueId(), bp.getUniqueId());
-                            backpackInstances.put(p.getUniqueId(), backpackItem);
-                        },
-                        ThreadUtils.getMainThreadExecutor());
+        PlayerBackpack.getAsync(item).thenAccept(bp -> {
+            Slimefun.runSyncAtEntity(
+                    () -> {
+                        openingPlayers.remove(p.getUniqueId());
+                        if (!p.isOnline()) {
+                            return;
+                        }
+                        // Check if the backpack item contains invalid backpack data
+                        if (bp == null || bp.isInvalid()) {
+                            return;
+                        }
+                        // Check if someone else is currently viewing this backpack
+                        if (backpacks.containsValue(bp.getUniqueId())
+                                || !bp.getInventory().getViewers().isEmpty()) {
+                            Slimefun.getLocalization().sendMessage(p, "backpack.already-open", true);
+                            return;
+                        }
+                        SoundEffect.BACKPACK_OPEN_SOUND.playAt(p.getLocation(), SoundCategory.PLAYERS);
+                        bp.open(p);
+                        backpacks.put(p.getUniqueId(), bp.getUniqueId());
+                        backpackInstances.put(p.getUniqueId(), backpackItem);
+                    },
+                    p);
+        });
     }
 }

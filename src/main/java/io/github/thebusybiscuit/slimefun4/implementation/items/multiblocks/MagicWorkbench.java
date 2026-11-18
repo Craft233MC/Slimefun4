@@ -92,8 +92,8 @@ public class MagicWorkbench extends AbstractCraftingTable {
 
             var waitCallback = false;
             if (sfItem instanceof SlimefunBackpack backpack) {
-                waitCallback =
-                        upgradeBackpack(p, inv, backpack, output, () -> startAnimation(p, b, inv, dispenser, output));
+                waitCallback = upgradeBackpack(
+                        p, b, inv, backpack, output, () -> startAnimation(p, b, inv, dispenser, output));
             }
 
             for (int j = 0; j < 9; j++) {

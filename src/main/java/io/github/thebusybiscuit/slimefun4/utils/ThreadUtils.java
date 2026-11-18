@@ -88,10 +88,12 @@ public class ThreadUtils {
     }
 
     /**
-     * Executes a runnable on the main thread using the NMS main executor.
+     * Executes a runnable on the server thread.
+     * On Paper this uses the NMS main executor.
+     * On Folia it uses the global region scheduler.
      * This is an internal method used by other ThreadUtils methods.
      *
-     * @param runnable The task to execute on the main thread
+     * @param runnable The task to execute on the server thread
      */
     private static void runSyncNMS(Runnable runnable) {
         MAIN_THREAD_EXECUTOR.execute(runnable);
@@ -99,19 +101,23 @@ public class ThreadUtils {
 
     static {
         Executor executor;
-        try {
-            Class<?> mcUtils = Class.forName("io.papermc.paper.util.MCUtil");
-            Field field = mcUtils.getDeclaredField("MAIN_EXECUTOR");
-            field.setAccessible(true);
-            executor = (Executor) field.get(null);
-        } catch (Throwable e) {
-            executor = (task) -> {
-                if (Bukkit.isPrimaryThread()) {
-                    task.run();
-                } else {
-                    Slimefun.runSync(task);
-                }
-            };
+        if (Slimefun.getFoliaLib().isFolia()) {
+            executor = Slimefun::runSync;
+        } else {
+            try {
+                Class<?> mcUtils = Class.forName("io.papermc.paper.util.MCUtil");
+                Field field = mcUtils.getDeclaredField("MAIN_EXECUTOR");
+                field.setAccessible(true);
+                executor = (Executor) field.get(null);
+            } catch (Throwable e) {
+                executor = (task) -> {
+                    if (Bukkit.isPrimaryThread()) {
+                        task.run();
+                    } else {
+                        Slimefun.runSync(task);
+                    }
+                };
+            }
         }
         MAIN_THREAD_EXECUTOR = executor;
         MAIN_DELAYED_EXECUTOR = Slimefun::runSync;
